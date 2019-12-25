@@ -1,0 +1,1727 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>测试报告</title>
+    <meta name="generator" content="HTMLTestRunner 0.8.2.1"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    
+<style type="text/css" media="screen">
+body        { font-family: Microsoft YaHei,Tahoma,arial,helvetica,sans-serif;padding: 20px; font-size: 14px; }
+table       { font-size: 12px; }
+/* -- heading ---------------------------------------------------------------------- */
+.heading {
+    margin-top: 0ex;
+    margin-bottom: 1ex;
+}
+.heading .description {
+    margin-top: 4ex;
+    margin-bottom: 6ex;
+}
+/* -- report ------------------------------------------------------------------------ */
+#total_row  { font-weight: bold; }
+.passCase   { color: #5cb85c; }
+.failCase   { color: #d9534f; font-weight: bold; }
+.errorCase  { color: #f0ad4e; font-weight: bold; }
+.hiddenRow  { display: none; }
+.testcase   { margin-left: 2em; }
+.passBtn    { background-color: #5cb85c; }
+.failBtn    { background-color: #d9534f; }
+.errorBtn    { background-color: #f0ad4e; }
+</style>
+
+</head>
+<body >
+<script language="javascript" type="text/javascript">
+output_list = Array();
+/*level 调整增加只显示通过用例的分类 --Findyou
+0:Summary //all hiddenRow
+1:Failed  //pt hiddenRow, ft none
+2:Pass    //pt none, ft hiddenRow
+3:All     //pt none, ft none
+*/
+function showCase(level) {
+    //展开或折叠用例按钮显示
+    var hidden_case = document.getElementById("case_hidden_btn");
+    if(level !=0) {
+
+        hidden_case.style.display = "block";
+    }else {
+        hidden_case.style.display = "none";
+    }
+
+    //更改通过时，显示通过按钮，样式，颜色bootstrap按钮
+    var btnpass = $('button[id^="btn_pt"]');
+    for(var i=0;i<btnpass.length;i++){
+        if(btnpass[i].innerText=="通过"){
+            btnpass[i].className="btn btn-success btn-xs";
+        }else{
+            btnpass[i].className="btn btn-danger btn-xs";
+        }
+    }
+
+
+
+    trs = document.getElementsByTagName("tr");
+    for (var i = 0; i < trs.length; i++) {
+        tr = trs[i];
+        id = tr.id;
+        if (id.substr(0,2) == 'ft') {
+            if (level == 2 || level == 0 ) {
+                tr.className = 'hiddenRow';
+            }
+            else {
+                tr.className = '';
+            }
+        }
+        if (id.substr(0,2) == 'pt') {
+            if (level < 2) {
+                tr.className = 'hiddenRow';
+            }
+            else {
+                tr.className = '';
+            }
+        }
+    }
+    //加入【详细】切换文字变化 --Findyou
+    detail_class=document.getElementsByClassName('detail');
+    //console.log(detail_class.length)
+    if (level == 3) {
+        for (var i = 0; i < detail_class.length; i++){
+            detail_class[i].innerHTML="收起"
+        }
+    }
+    else{
+            for (var i = 0; i < detail_class.length; i++){
+            detail_class[i].innerHTML="详细"
+        }
+    }
+}
+function showClassDetail(cid, count) {
+    var id_list = Array(count);
+    var toHide = 1;
+    for (var i = 0; i < count; i++) {
+        //ID修改 点 为 下划线 -Findyou
+        tid0 = 't' + cid.substr(1) + '_' + (i+1);
+        tid = 'f' + tid0;
+        tr = document.getElementById(tid);
+        if (!tr) {
+            tid = 'p' + tid0;
+            tr = document.getElementById(tid);
+        }
+        id_list[i] = tid;
+        if (tr.className) {
+            toHide = 0;
+        }
+    }
+    for (var i = 0; i < count; i++) {
+        tid = id_list[i];
+        //修改点击无法收起的BUG，加入【详细】切换文字变化 --Findyou
+        if (toHide) {
+            document.getElementById(tid).className = 'hiddenRow';
+            document.getElementById(cid).innerText = "详细"
+        }
+        else {
+            document.getElementById(tid).className = '';
+            document.getElementById(cid).innerText = "收起"
+        }
+    }
+}
+function html_escape(s) {
+    s = s.replace(/&/g,'&amp;');
+    s = s.replace(/</g,'&lt;');
+    s = s.replace(/>/g,'&gt;');
+    return s;
+}
+
+function hidden_case() {
+    var case_btn = document.getElementById("case_hidden_btn");
+    var btn_text = case_btn.innerText;
+
+    var a = $('div[id^="div_pt"]');
+    for(var i=0;i<a.length;i++){
+        if(btn_text=='展开所有'){
+            a[i].className = 'in';
+            a[i].style.height = "auto";
+            case_btn.innerText = "折叠所有";
+        }else {
+            a[i].className = 'collapse';
+            a[i].style.height = "0px";
+            case_btn.innerText = "展开所有";
+        }
+    }
+}
+</script>
+<div class='heading'>
+<h4 style="font-family: Microsoft YaHei">测试报告</h4>
+<p class='attribute'><strong>测试环境 : </strong> QA</p>
+<p class='attribute'><strong>测试人员 : </strong> 有鱼鱼筐</p>
+<p class='attribute'><strong>开始时间 : </strong> 2019-12-16 17:47:00</p>
+<p class='attribute'><strong>合计耗时 : </strong> 0:00:09.787000</p>
+<p class='attribute'><strong>测试结果 : </strong> 共 31，通过 2，失败 20，错误 9，通过率= 6.45%</p>
+
+<p class='description'>用例执行情况</p>
+</div>
+
+
+<p id='show_detail_line'>
+<a class="btn btn-primary" href='javascript:showCase(0)'>概要{ 6.45% }</a>
+<a class="btn btn-danger" href='javascript:showCase(1)'>失败{ 20 }</a>
+<a class="btn btn-success" href='javascript:showCase(2)'>通过{ 2 }</a>
+<a class="btn btn-info" href='javascript:showCase(3)'>所有{ 31 }</a>
+</p>
+<table id='result_table' class="table table-condensed table-bordered table-hover">
+<colgroup>
+<col align='left' />
+<col align='right' />
+<col align='right' />
+<col align='right' />
+<col align='right' />
+<col align='right' />
+</colgroup>
+<tr id='header_row' class="text-center success" style="font-weight: bold;font-size: 14px;">
+    <td>用例集/测试用例</td>
+    <td>总计</td>
+    <td>通过</td>
+    <td>失败</td>
+    <td>错误</td>
+    <td>详细</td>
+</tr>
+
+<tr class='errorClass warning'>
+    <td>123</td>
+    <td class="text-center">5</td>
+    <td class="text-center">1</td>
+    <td class="text-center">3</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c1',5)" class="detail" id='c1'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft1_1' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_13_test2</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_1'>失败</button>
+    <div id='div_ft1_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_1'>失败</button>
+    <div id='div_ft1_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft1_1: 开始执行....
+
+用例名称:test2.
+用例id:13.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：fwefewfwefwefewfwefewfwefwefwef
+请求头： {}
+请求体：{} 
+请求地址：dhuehduwrrerwerwerwerwer
+请求头： {u'Content-Type': u'ewrwerwer'}
+请求体：{u'erwerwer': 'erwerwrwerwerewr'} 
+请求地址：wrwrwrwrrwrwrwrwrwerwr
+请求头： {}
+请求体：{} 
+执行结果：case (72:rwerwrwr) 执行失败:run error:{'status_code': 400, 'error': "Invalid URL 'wrwrwrwrrwrwrwrwrwerwr': No schema supplied. Perhaps you meant http://wrwrwrwrrwrwrwrwrwerwr?"}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_2' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_14_test3</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_2' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_2'>失败</button>
+    <div id='div_ft1_2' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_2' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_2'>失败</button>
+    <div id='div_ft1_2' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft1_2: 开始执行....
+ [(u'\u6d4b\u8bd5\u73af\u5883', 'QA'), (u'\u6d4b\u8bd5\u4eba\u5458', 'ceshixindenende'), (u'\u5f00\u59cb\u65f6\u95f4', '2019-12-16 17:47:00'), (u'\u5408\u8ba1\u8017\u65f6', '0:00:00.655000'), (u'\u6d4b\u8bd5\u7ed3\u679c', '\xe5\x85\xb1 1\xef\xbc\x8c\xe5\xa4\xb1\xe8\xb4\xa5 1\xef\xbc\x8c\xe9\x80\x9a\xe8\xbf\x87\xe7\x8e\x87= 0.00%')]
+
+用例名称:test3.
+用例id:14.
+
+Time Elapsed: 0:00:00.655000
+依赖用例t_id：d27
+依赖数据：无
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+ceshixindenende_2019-12-16-17_47_00_result.html
+请求地址：dhuehduwrrerwerwerwerwer
+请求头： {u'Content-Type': u'ewrwerwer'}
+请求体：{u'erwerwer': u'erwerwrwerwerewr'} 
+执行结果：case (14:test3) 执行失败:run error:{'status_code': 400, 'error': "Invalid URL 'dhuehduwrrerwerwerwerwer': No schema supplied. Perhaps you meant http://dhuehduwrrerwerwerwerwer?"}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='pt1_3' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_func_15_执行用例</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_pt1_3' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_pt1_3'>通过</button>
+    <div id='div_pt1_3' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_pt1_3' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-success btn-xs" data-toggle="collapse" data-target='#div_pt1_3'>通过</button>
+    <div id='div_pt1_3' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+pt1_3: 开始执行....
+
+用例名称:执行用例.
+用例id:15.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：https://pc-market-qa.youyu.cn/pc/v1/quote/user/query/marketinfobatch
+请求头： {}
+请求体：{u'auth': u'731416e1214b615a77f480f053f6737398e7889be17a7f77e8aad91b1b68e66b6d65993b42902a7445dc97d68a29e4882e1d3eb9c5c17e54e7b8d30a54ae5b02c308292c579eb09920ba990632ea6f0dd308c748bbb7851ba2aa9470c728f01d', u'loginid': 90976} 
+[u'nan.wei@yff.com']
+D:/project/auto_interface/antoInterfacePlatform/main\report\ceshixindenende_2019-12-16-17_47_00_result.html
+[u'nan.wei@yff.com']
+D:/project/auto_interface/antoInterfacePlatform/main\report\永隆股票_2019-12-16-17_47_00_result.html
+接口返回状态码：200
+返回数据：{"msg":"","code":0,"data":[{"90":"EST","800":"PRE_OPEN","801":"盘前交易","10":"20191213160000","802":"","100":"ar"},{"90":"","800":"CLOSE","801":"已收盘","10":"20191216150005","802":"","100":"sz"},{"90":"","800":"CLOSE","801":"已收盘","10":"20191216150026","802":"","100":"sh"},{"90":"EST","800":"PRE_OPEN","801":"盘前交易","10":"20191213160000","802":"","100":"am"},{"90":"EST","800":"PRE_OPEN","801":"盘前交易","10":"20191213160000","802":"","100":"ny"},{"90":"","800":"CLOSE","801":"已收盘","10":"20191216160822","802":"","100":"hk"},{"90":"EST","800":"PRE_OPEN","801":"盘前交易","10":"20191213160000","802":"","100":"oq"},{"server_time":1576489702,"100":"common"}]} 
+断言数据：空
+执行结果：case (15:执行用例) 执行成功.
+执行结束....
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_4' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_17_问请问企鹅企鹅</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_4' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_4'>失败</button>
+    <div id='div_ft1_4' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_4' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_4'>失败</button>
+    <div id='div_ft1_4' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft1_4: 开始执行....
+
+用例名称:问请问企鹅企鹅.
+用例id:17.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：POST
+请求地址：https://servicesit.yflife.app/v1/users/check
+请求头： {u'Content-Type': u'application/json'}
+请求体：{} 
+接口返回状态码：404
+返回数据：&lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+断言数据：空
+执行结果：case (17:问请问企鹅企鹅) 执行失败:{'status_code': 404}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_5' class='none'>
+    <td class='errorCase'><div class='testcase'>test_func_5_测试</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_5' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_5'>错误</button>
+    <div id='div_ft1_5' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_5' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-warning btn-xs" data-toggle="collapse" data-target='#div_ft1_5'>错误</button>
+    <div id='div_ft1_5' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft1_5: 开始执行....
+
+用例名称:测试.
+用例id:5.
+依赖用例t_id：d8
+依赖接口d8是否有关联接口：否
+依赖接口是否有自定义参数：否
+依赖接口返回信息： &lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 26, in actions
+    singleResult = self.singleRun(caseID, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 51, in singleRun
+    respResult = batchUntils.getResp(id, environment, dtime, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 117, in getResp
+    dependData = isDependency(depend_flag, dependData_str, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 207, in isDependency
+    dependRes = getDependData.getdepands(depend_caseid, depend_data, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\getDependData.py", line 106, in getdepands
+    responseText = json.loads(resp.text)
+  File "C:\Python27\lib\json\__init__.py", line 339, in loads
+    return _default_decoder.decode(s)
+  File "C:\Python27\lib\json\decoder.py", line 364, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Python27\lib\json\decoder.py", line 382, in raw_decode
+    raise ValueError("No JSON object could be decoded")
+ValueError: No JSON object could be decoded
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='failClass warning'>
+    <td>21e21e21e12e12e12e12</td>
+    <td class="text-center">4</td>
+    <td class="text-center">0</td>
+    <td class="text-center">4</td>
+    <td class="text-center">0</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c2',4)" class="detail" id='c2'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft2_1' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_13_test2</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft2_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft2_1'>失败</button>
+    <div id='div_ft2_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft2_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft2_1'>失败</button>
+    <div id='div_ft2_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft2_1: 开始执行....
+
+用例名称:test2.
+用例id:13.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：dhuehduwrrerwerwerwerwer
+请求头： {u'Content-Type': u'ewrwerwer'}
+请求体：{u'erwerwer': 'erwerwrwerwerewr'} 
+执行结果：case (13:test2) 执行失败:run error:{'status_code': 400, 'error': "Invalid URL 'dhuehduwrrerwerwerwerwer': No schema supplied. Perhaps you meant http://dhuehduwrrerwerwerwerwer?"}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft2_2' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_17_问请问企鹅企鹅</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft2_2' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft2_2'>失败</button>
+    <div id='div_ft2_2' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft2_2' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft2_2'>失败</button>
+    <div id='div_ft2_2' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft2_2: 开始执行....
+
+用例名称:问请问企鹅企鹅.
+用例id:17.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：POST
+请求地址：https://servicesit.yflife.app/v1/users/check
+请求头： {u'Content-Type': u'application/json'}
+请求体：{} 
+接口返回状态码：404
+返回数据：&lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+断言数据：空
+执行结果：case (17:问请问企鹅企鹅) 执行失败:{'status_code': 404}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft2_3' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_7_产品库首页查询</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft2_3' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft2_3'>失败</button>
+    <div id='div_ft2_3' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft2_3' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft2_3'>失败</button>
+    <div id='div_ft2_3' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft2_3: 开始执行....
+
+用例名称:产品库首页查询.
+用例id:7.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试/导出
+请求方法：GET
+请求地址：https://servicesit.yflife.app/v1/mma/smt/productinfos/lastupdate/ids?lang=zh-HK
+请求头： {u'X-Product': u'smmart||version=1.1.0'}
+请求体：{} 
+接口返回状态码：200
+返回数据：{"msg":"agentcode missing","code":1891} 
+断言数据："code":0 
+执行结果：case (7:产品库首页查询) 执行失败:{'assert': '"code":0', 'status_code': 200, 'responseText': '{"msg":"agentcode missing","code":1891}'}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft2_4' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_8_行情首屏[港股]</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft2_4' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft2_4'>失败</button>
+    <div id='div_ft2_4' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft2_4' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft2_4'>失败</button>
+    <div id='div_ft2_4' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft2_4: 开始执行....
+
+用例名称:行情首屏[港股].
+用例id:8.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试/导出
+请求方法：GET
+请求地址：https://servicesit.yflife.app/app/v3/quote/user/query/quotes?
+请求头： {}
+请求体：{u'msg': 123, u'code': u'hk0000036', u'marketid': u'hk'} 
+接口返回状态码：404
+返回数据：&lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+断言数据：空
+执行结果：case (8:行情首屏[港股]) 执行失败:{'status_code': 404}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='errorClass warning'>
+    <td>454545</td>
+    <td class="text-center">7</td>
+    <td class="text-center">1</td>
+    <td class="text-center">5</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c3',7)" class="detail" id='c3'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft3_1' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_12_test1</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft3_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft3_1'>失败</button>
+    <div id='div_ft3_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft3_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft3_1'>失败</button>
+    <div id='div_ft3_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft3_1: 开始执行....
+
+用例名称:test1.
+用例id:12.
+依赖用例t_id：t04
+依赖接口t04是否有关联接口：否
+依赖接口是否有自定义参数：否
+依赖数据：无
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：dhuehduwrrerwerwerwerwer
+请求头： {u'Content-Type': u'ewrwerwer'}
+请求体：{u'erwerwer': u'erwerwrwerwerewr'} 
+执行结果：case (12:test1) 执行失败:run error:{'status_code': 400, 'error': "Invalid URL 'dhuehduwrrerwerwerwerwer': No schema supplied. Perhaps you meant http://dhuehduwrrerwerwerwerwer?"}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft3_2' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_13_test2</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft3_2' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft3_2'>失败</button>
+    <div id='div_ft3_2' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft3_2' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft3_2'>失败</button>
+    <div id='div_ft3_2' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft3_2: 开始执行....
+
+用例名称:test2.
+用例id:13.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：dhuehduwrrerwerwerwerwer
+请求头： {u'Content-Type': u'ewrwerwer'}
+请求体：{u'erwerwer': 'erwerwrwerwerewr'} 
+执行结果：case (13:test2) 执行失败:run error:{'status_code': 400, 'error': "Invalid URL 'dhuehduwrrerwerwerwerwer': No schema supplied. Perhaps you meant http://dhuehduwrrerwerwerwerwer?"}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft3_3' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_14_test3</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft3_3' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft3_3'>失败</button>
+    <div id='div_ft3_3' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft3_3' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft3_3'>失败</button>
+    <div id='div_ft3_3' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft3_3: 开始执行....
+
+用例名称:test3.
+用例id:14.
+依赖用例t_id：d27
+依赖数据：无
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：dhuehduwrrerwerwerwerwer
+请求头： {u'Content-Type': u'ewrwerwer'}
+请求体：{u'erwerwer': u'erwerwrwerwerewr'} 
+执行结果：case (14:test3) 执行失败:run error:{'status_code': 400, 'error': "Invalid URL 'dhuehduwrrerwerwerwerwer': No schema supplied. Perhaps you meant http://dhuehduwrrerwerwerwerwer?"}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft3_4' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_16_被依赖用例</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft3_4' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft3_4'>失败</button>
+    <div id='div_ft3_4' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft3_4' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft3_4'>失败</button>
+    <div id='div_ft3_4' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft3_4: 开始执行....
+
+用例名称:被依赖用例.
+用例id:16.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：POST
+请求地址：https://servicesit.yflife.app/v1/users/check
+请求头： {u'Content-Type': u'application/json'}
+请求体：{u'aver': 1, u'type': u'mobile', u'value': u'+8610111112245'} 
+接口返回状态码：404
+返回数据：&lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+断言数据：空
+执行结果：case (16:被依赖用例) 执行失败:{'status_code': 404}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft3_5' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_17_问请问企鹅企鹅</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft3_5' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft3_5'>失败</button>
+    <div id='div_ft3_5' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft3_5' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft3_5'>失败</button>
+    <div id='div_ft3_5' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft3_5: 开始执行....
+
+用例名称:问请问企鹅企鹅.
+用例id:17.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：POST
+请求地址：https://servicesit.yflife.app/v1/users/check
+请求头： {u'Content-Type': u'application/json'}
+请求体：{} 
+接口返回状态码：404
+返回数据：&lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+断言数据：空
+执行结果：case (17:问请问企鹅企鹅) 执行失败:{'status_code': 404}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft3_6' class='none'>
+    <td class='errorCase'><div class='testcase'>test_func_58_呜呜呜呜呜呜呜呜呜呜呜呜呜呜</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft3_6' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft3_6'>错误</button>
+    <div id='div_ft3_6' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft3_6' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-warning btn-xs" data-toggle="collapse" data-target='#div_ft3_6'>错误</button>
+    <div id='div_ft3_6' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft3_6: 开始执行....
+
+用例名称:呜呜呜呜呜呜呜呜呜呜呜呜呜呜.
+用例id:58.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：1232131233123213123123
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 26, in actions
+    singleResult = self.singleRun(caseID, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 51, in singleRun
+    respResult = batchUntils.getResp(id, environment, dtime, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 155, in getResp
+    if len(send_body) != 0:
+TypeError: object of type 'long' has no len()
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='pt3_7' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_func_62_wlb</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_pt3_7' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_pt3_7'>通过</button>
+    <div id='div_pt3_7' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_pt3_7' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-success btn-xs" data-toggle="collapse" data-target='#div_pt3_7'>通过</button>
+    <div id='div_pt3_7' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+pt3_7: 开始执行....
+
+用例名称:wlb.
+用例id:62.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：http://wlb-m-qa.youyu.cn/api/investment-view/ipo/list?lang=zh-Hant
+请求头： {}
+请求体：{} 
+接口返回状态码：200
+返回数据：{"code":0,"data":{"items":[{"rid":427865,"id":"3827FD4A-07B0-11EA-8DC6-000C29C58D67","title":"新股消息 | 太意外！阿裏（09988）招股首日竟遭散戶冷遇，券商千億孖展或九成富余，原因竟是…","category":"ipo","columns":["新股觀察-需要審核"],"updateTime":1573824040,"abstract":"阿裏巴巴將登陸香港主板，作為萬眾矚目的IPO，卻有一些令人意想不到的情節。","author":"智通財經","pv":72,"tags":[],"nowTime":1576489706.428},{"rid":427679,"id":"22590CE0-05F1-11EA-B7D4-C3B563717DCE","title":"簡繁體轉換","category":"ipo","columns":["測試1"],"updateTime":1573634380,"abstract":"","author":"333","pv":36,"tags":[],"nowTime":1576489706.428},{"rid":423410,"id":"CF311D3C-E0FC-11E9-981B-000C29C58D67","title":"新股消息 | 士林小吃來了！快餐帝國二次沖刺港交所成功","category":"ipo","columns":["新股觀察-需要審核"],"updateTime":1569570164,"abstract":"9月27日，快餐帝國控股有限公司通過港交所聆訊，力高企業融資有限公司為其獨家保薦人。","author":"雲鋒金融","pv":53,"tags":[],"nowTime":1576489706.428},{"rid":423400,"id":"6D3E2244-E0F4-11E9-B6D2-000C29C58D67","title":"配售結果 | 百威亞太(01876)一手中簽率100% 最終定價27港元","category":"ipo","columns":["新股觀察-需要審核"],"updateTime":1569566367,"abstract":"9月27日，百威亞太(01876)配售結束。配售招股價為27-30港元，最終定價27港元，每手2700港元。","author":"雲鋒金融","pv":2,"tags":[],"nowTime":1576489706.428}]}} 
+断言数据：空
+执行结果：case (62:wlb) 执行成功.
+执行结束....
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='failClass warning'>
+    <td>新建2</td>
+    <td class="text-center">3</td>
+    <td class="text-center">0</td>
+    <td class="text-center">3</td>
+    <td class="text-center">0</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c4',3)" class="detail" id='c4'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft4_1' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_65_获取股票信息-需登录</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft4_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft4_1'>失败</button>
+    <div id='div_ft4_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft4_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft4_1'>失败</button>
+    <div id='div_ft4_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft4_1: 开始执行....
+
+用例名称:获取股票信息-需登录.
+用例id:65.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 新建策略
+请求方法：GET
+请求地址：https://quant-qa.youyu.cn/common/v1/user/query/stockbox?type=1&amp;item=%E4%B8%8A%E8%AF%8150
+请求头： {}
+请求体：{} 
+接口返回状态码：200
+返回数据：{"code":7020,"msg":"msg=get session data failed,retcode=7020"} 
+断言数据："code":0 
+执行结果：case (65:获取股票信息-需登录) 执行失败:{'assert': '"code":0', 'status_code': 200, 'responseText': '{"code":7020,"msg":"msg=get session data failed,retcode=7020"}'}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft4_2' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_66_获取策略列表-需登录</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft4_2' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft4_2'>失败</button>
+    <div id='div_ft4_2' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft4_2' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft4_2'>失败</button>
+    <div id='div_ft4_2' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft4_2: 开始执行....
+
+用例名称:获取策略列表-需登录.
+用例id:66.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 新建策略
+请求方法：GET
+请求地址：https://quant-qa.youyu.cn/common/v1/user/query/strategylist?count=10
+请求头： {}
+请求体：{} 
+接口返回状态码：200
+返回数据：{"code":7020,"msg":"msg=get session data failed,retcode=7020"} 
+断言数据："code":0 
+执行结果：case (66:获取策略列表-需登录) 执行失败:{'assert': '"code":0', 'status_code': 200, 'responseText': '{"code":7020,"msg":"msg=get session data failed,retcode=7020"}'}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft4_3' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_67_获取上证30-需登录</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft4_3' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft4_3'>失败</button>
+    <div id='div_ft4_3' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft4_3' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft4_3'>失败</button>
+    <div id='div_ft4_3' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft4_3: 开始执行....
+
+用例名称:获取上证30-需登录.
+用例id:67.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 新建策略
+请求方法：GET
+请求地址：https://quant-qa.youyu.cn/common/v1/user/query/stockbox?type=1&amp;item=%E4%B8%8A%E8%AF%8150
+请求头： {}
+请求体：{} 
+接口返回状态码：200
+返回数据：{"code":7020,"msg":"msg=get session data failed,retcode=7020"} 
+断言数据："code":0 
+执行结果：case (67:获取上证30-需登录) 执行失败:{'assert': '"code":0', 'status_code': 200, 'responseText': '{"code":7020,"msg":"msg=get session data failed,retcode=7020"}'}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='failClass warning'>
+    <td>2</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c5',1)" class="detail" id='c5'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft5_1' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_65_获取股票信息-需登录</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft5_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft5_1'>失败</button>
+    <div id='div_ft5_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft5_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft5_1'>失败</button>
+    <div id='div_ft5_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft5_1: 开始执行....
+
+用例名称:获取股票信息-需登录.
+用例id:65.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 新建策略
+请求方法：GET
+请求地址：https://quant-qa.youyu.cn/common/v1/user/query/stockbox?type=1&amp;item=%E4%B8%8A%E8%AF%8150
+请求头： {}
+请求体：{} 
+接口返回状态码：200
+返回数据：{"code":7020,"msg":"msg=get session data failed,retcode=7020"} 
+断言数据："code":0 
+执行结果：case (65:获取股票信息-需登录) 执行失败:{'assert': '"code":0', 'status_code': 200, 'responseText': '{"code":7020,"msg":"msg=get session data failed,retcode=7020"}'}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='errorClass warning'>
+    <td>23313</td>
+    <td class="text-center">3</td>
+    <td class="text-center">0</td>
+    <td class="text-center">2</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c6',3)" class="detail" id='c6'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft6_1' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_12_test1</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft6_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft6_1'>失败</button>
+    <div id='div_ft6_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft6_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft6_1'>失败</button>
+    <div id='div_ft6_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft6_1: 开始执行....
+
+用例名称:test1.
+用例id:12.
+依赖用例t_id：t04
+依赖接口t04是否有关联接口：否
+依赖接口是否有自定义参数：否
+依赖数据：无
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：dhuehduwrrerwerwerwerwer
+请求头： {u'Content-Type': u'ewrwerwer'}
+请求体：{u'erwerwer': u'erwerwrwerwerewr'} 
+执行结果：case (12:test1) 执行失败:run error:{'status_code': 400, 'error': "Invalid URL 'dhuehduwrrerwerwerwerwer': No schema supplied. Perhaps you meant http://dhuehduwrrerwerwerwerwer?"}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft6_2' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_13_test2</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft6_2' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft6_2'>失败</button>
+    <div id='div_ft6_2' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft6_2' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft6_2'>失败</button>
+    <div id='div_ft6_2' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft6_2: 开始执行....
+
+用例名称:test2.
+用例id:13.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：dhuehduwrrerwerwerwerwer
+请求头： {u'Content-Type': u'ewrwerwer'}
+请求体：{u'erwerwer': 'erwerwrwerwerewr'} 
+执行结果：case (13:test2) 执行失败:run error:{'status_code': 400, 'error': "Invalid URL 'dhuehduwrrerwerwerwerwer': No schema supplied. Perhaps you meant http://dhuehduwrrerwerwerwerwer?"}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft6_3' class='none'>
+    <td class='errorCase'><div class='testcase'>test_func_5_测试</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft6_3' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft6_3'>错误</button>
+    <div id='div_ft6_3' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft6_3' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-warning btn-xs" data-toggle="collapse" data-target='#div_ft6_3'>错误</button>
+    <div id='div_ft6_3' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft6_3: 开始执行....
+
+用例名称:测试.
+用例id:5.
+依赖用例t_id：d8
+依赖接口d8是否有关联接口：否
+依赖接口是否有自定义参数：否
+依赖接口返回信息： &lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 26, in actions
+    singleResult = self.singleRun(caseID, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 51, in singleRun
+    respResult = batchUntils.getResp(id, environment, dtime, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 117, in getResp
+    dependData = isDependency(depend_flag, dependData_str, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 207, in isDependency
+    dependRes = getDependData.getdepands(depend_caseid, depend_data, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\getDependData.py", line 106, in getdepands
+    responseText = json.loads(resp.text)
+  File "C:\Python27\lib\json\__init__.py", line 339, in loads
+    return _default_decoder.decode(s)
+  File "C:\Python27\lib\json\decoder.py", line 364, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Python27\lib\json\decoder.py", line 382, in raw_decode
+    raise ValueError("No JSON object could be decoded")
+ValueError: No JSON object could be decoded
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='errorClass warning'>
+    <td>页数测试</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c7',1)" class="detail" id='c7'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft7_1' class='none'>
+    <td class='errorCase'><div class='testcase'>test_func_5_测试</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft7_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft7_1'>错误</button>
+    <div id='div_ft7_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft7_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-warning btn-xs" data-toggle="collapse" data-target='#div_ft7_1'>错误</button>
+    <div id='div_ft7_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft7_1: 开始执行....
+
+用例名称:测试.
+用例id:5.
+依赖用例t_id：d8
+依赖接口d8是否有关联接口：否
+依赖接口是否有自定义参数：否
+依赖接口返回信息： &lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 26, in actions
+    singleResult = self.singleRun(caseID, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 51, in singleRun
+    respResult = batchUntils.getResp(id, environment, dtime, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 117, in getResp
+    dependData = isDependency(depend_flag, dependData_str, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 207, in isDependency
+    dependRes = getDependData.getdepands(depend_caseid, depend_data, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\getDependData.py", line 106, in getdepands
+    responseText = json.loads(resp.text)
+  File "C:\Python27\lib\json\__init__.py", line 339, in loads
+    return _default_decoder.decode(s)
+  File "C:\Python27\lib\json\decoder.py", line 364, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Python27\lib\json\decoder.py", line 382, in raw_decode
+    raise ValueError("No JSON object could be decoded")
+ValueError: No JSON object could be decoded
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='errorClass warning'>
+    <td>页数测试2</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c8',1)" class="detail" id='c8'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft8_1' class='none'>
+    <td class='errorCase'><div class='testcase'>test_func_5_测试</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft8_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft8_1'>错误</button>
+    <div id='div_ft8_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft8_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-warning btn-xs" data-toggle="collapse" data-target='#div_ft8_1'>错误</button>
+    <div id='div_ft8_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft8_1: 开始执行....
+
+用例名称:测试.
+用例id:5.
+依赖用例t_id：d8
+依赖接口d8是否有关联接口：否
+依赖接口是否有自定义参数：否
+依赖接口返回信息： &lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 26, in actions
+    singleResult = self.singleRun(caseID, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 51, in singleRun
+    respResult = batchUntils.getResp(id, environment, dtime, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 117, in getResp
+    dependData = isDependency(depend_flag, dependData_str, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 207, in isDependency
+    dependRes = getDependData.getdepands(depend_caseid, depend_data, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\getDependData.py", line 106, in getdepands
+    responseText = json.loads(resp.text)
+  File "C:\Python27\lib\json\__init__.py", line 339, in loads
+    return _default_decoder.decode(s)
+  File "C:\Python27\lib\json\decoder.py", line 364, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Python27\lib\json\decoder.py", line 382, in raw_decode
+    raise ValueError("No JSON object could be decoded")
+ValueError: No JSON object could be decoded
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='errorClass warning'>
+    <td>页数测试3</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c9',1)" class="detail" id='c9'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft9_1' class='none'>
+    <td class='errorCase'><div class='testcase'>test_func_5_测试</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft9_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft9_1'>错误</button>
+    <div id='div_ft9_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft9_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-warning btn-xs" data-toggle="collapse" data-target='#div_ft9_1'>错误</button>
+    <div id='div_ft9_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft9_1: 开始执行....
+
+用例名称:测试.
+用例id:5.
+依赖用例t_id：d8
+依赖接口d8是否有关联接口：否
+依赖接口是否有自定义参数：否
+依赖接口返回信息： &lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 26, in actions
+    singleResult = self.singleRun(caseID, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 51, in singleRun
+    respResult = batchUntils.getResp(id, environment, dtime, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 117, in getResp
+    dependData = isDependency(depend_flag, dependData_str, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 207, in isDependency
+    dependRes = getDependData.getdepands(depend_caseid, depend_data, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\getDependData.py", line 106, in getdepands
+    responseText = json.loads(resp.text)
+  File "C:\Python27\lib\json\__init__.py", line 339, in loads
+    return _default_decoder.decode(s)
+  File "C:\Python27\lib\json\decoder.py", line 364, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Python27\lib\json\decoder.py", line 382, in raw_decode
+    raise ValueError("No JSON object could be decoded")
+ValueError: No JSON object could be decoded
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='errorClass warning'>
+    <td>1</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c10',1)" class="detail" id='c10'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft10_1' class='none'>
+    <td class='errorCase'><div class='testcase'>test_func_5_测试</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft10_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft10_1'>错误</button>
+    <div id='div_ft10_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft10_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-warning btn-xs" data-toggle="collapse" data-target='#div_ft10_1'>错误</button>
+    <div id='div_ft10_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft10_1: 开始执行....
+
+用例名称:测试.
+用例id:5.
+依赖用例t_id：d8
+依赖接口d8是否有关联接口：否
+依赖接口是否有自定义参数：否
+依赖接口返回信息： &lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 26, in actions
+    singleResult = self.singleRun(caseID, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 51, in singleRun
+    respResult = batchUntils.getResp(id, environment, dtime, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 117, in getResp
+    dependData = isDependency(depend_flag, dependData_str, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 207, in isDependency
+    dependRes = getDependData.getdepands(depend_caseid, depend_data, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\getDependData.py", line 106, in getdepands
+    responseText = json.loads(resp.text)
+  File "C:\Python27\lib\json\__init__.py", line 339, in loads
+    return _default_decoder.decode(s)
+  File "C:\Python27\lib\json\decoder.py", line 364, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Python27\lib\json\decoder.py", line 382, in raw_decode
+    raise ValueError("No JSON object could be decoded")
+ValueError: No JSON object could be decoded
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='errorClass warning'>
+    <td>4</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c11',1)" class="detail" id='c11'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft11_1' class='none'>
+    <td class='errorCase'><div class='testcase'>test_func_5_测试</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft11_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft11_1'>错误</button>
+    <div id='div_ft11_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft11_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-warning btn-xs" data-toggle="collapse" data-target='#div_ft11_1'>错误</button>
+    <div id='div_ft11_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft11_1: 开始执行....
+
+用例名称:测试.
+用例id:5.
+依赖用例t_id：d8
+依赖接口d8是否有关联接口：否
+依赖接口是否有自定义参数：否
+依赖接口返回信息： &lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 26, in actions
+    singleResult = self.singleRun(caseID, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 51, in singleRun
+    respResult = batchUntils.getResp(id, environment, dtime, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 117, in getResp
+    dependData = isDependency(depend_flag, dependData_str, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 207, in isDependency
+    dependRes = getDependData.getdepands(depend_caseid, depend_data, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\getDependData.py", line 106, in getdepands
+    responseText = json.loads(resp.text)
+  File "C:\Python27\lib\json\__init__.py", line 339, in loads
+    return _default_decoder.decode(s)
+  File "C:\Python27\lib\json\decoder.py", line 364, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Python27\lib\json\decoder.py", line 382, in raw_decode
+    raise ValueError("No JSON object could be decoded")
+ValueError: No JSON object could be decoded
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='failClass warning'>
+    <td>7</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c12',1)" class="detail" id='c12'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft12_1' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_13_test2</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft12_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft12_1'>失败</button>
+    <div id='div_ft12_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft12_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft12_1'>失败</button>
+    <div id='div_ft12_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft12_1: 开始执行....
+
+用例名称:test2.
+用例id:13.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 测试
+请求方法：GET
+请求地址：dhuehduwrrerwerwerwerwer
+请求头： {u'Content-Type': u'ewrwerwer'}
+请求体：{u'erwerwer': 'erwerwrwerwerewr'} 
+执行结果：case (13:test2) 执行失败:run error:{'status_code': 400, 'error': "Invalid URL 'dhuehduwrrerwerwerwerwer': No schema supplied. Perhaps you meant http://dhuehduwrrerwerwerwerwer?"}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='errorClass warning'>
+    <td>5</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c13',1)" class="detail" id='c13'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft13_1' class='none'>
+    <td class='errorCase'><div class='testcase'>test_func_5_测试</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft13_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft13_1'>错误</button>
+    <div id='div_ft13_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft13_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-warning btn-xs" data-toggle="collapse" data-target='#div_ft13_1'>错误</button>
+    <div id='div_ft13_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft13_1: 开始执行....
+
+用例名称:测试.
+用例id:5.
+依赖用例t_id：d8
+依赖接口d8是否有关联接口：否
+依赖接口是否有自定义参数：否
+依赖接口返回信息： &lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.14.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+ 
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 26, in actions
+    singleResult = self.singleRun(caseID, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 51, in singleRun
+    respResult = batchUntils.getResp(id, environment, dtime, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 117, in getResp
+    dependData = isDependency(depend_flag, dependData_str, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchUntils.py", line 207, in isDependency
+    dependRes = getDependData.getdepands(depend_caseid, depend_data, environment, Cookie)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\getDependData.py", line 106, in getdepands
+    responseText = json.loads(resp.text)
+  File "C:\Python27\lib\json\__init__.py", line 339, in loads
+    return _default_decoder.decode(s)
+  File "C:\Python27\lib\json\decoder.py", line 364, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Python27\lib\json\decoder.py", line 382, in raw_decode
+    raise ValueError("No JSON object could be decoded")
+ValueError: No JSON object could be decoded
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr class='failClass warning'>
+    <td>8</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">
+        <a href="javascript:showClassDetail('c14',1)" class="detail" id='c14'>详细</a>
+        <a href='javascript:hidden_case()' id="case_hidden_btn" style="display:none">展开所有</a>
+    </td>
+
+</tr>
+
+<tr id='ft14_1' class='none'>
+    <td class='failCase'><div class='testcase'>test_func_65_获取股票信息-需登录</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft14_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft14_1'>失败</button>
+    <div id='div_ft14_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft14_1' type="button" title="点击按钮，展开或折叠该Case" class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft14_1'>失败</button>
+    <div id='div_ft14_1' class="collapse" align="left">
+    <pre style="overflow-y:scroll; overflow-x:hidden;height:200px; width:1070px; margin:auto; border:1px solid #e1e1e1;">
+    
+ft14_1: 开始执行....
+
+用例名称:获取股票信息-需登录.
+用例id:65.
+是否有关联接口：否
+接口是否有自定义参数：否
+所属项目-模块：有鱼鱼筐 - 新建策略
+请求方法：GET
+请求地址：https://quant-qa.youyu.cn/common/v1/user/query/stockbox?type=1&amp;item=%E4%B8%8A%E8%AF%8150
+请求头： {}
+请求体：{} 
+接口返回状态码：200
+返回数据：{"code":7020,"msg":"msg=get session data failed,retcode=7020"} 
+断言数据："code":0 
+执行结果：case (65:获取股票信息-需登录) 执行失败:{'assert': '"code":0', 'status_code': 200, 'responseText': '{"code":7020,"msg":"msg=get session data failed,retcode=7020"}'}
+Traceback (most recent call last):
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 40, in func
+    self.actions(arg1, arg2, environment, cookices)
+  File "D:\project\auto_interface\antoInterfacePlatform\main\common\batchstart.py", line 33, in actions
+    self.assertEqual(True, state)
+AssertionError: True != False
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='total_row' class="text-center active">
+    <td>总计</td>
+    <td>31</td>
+    <td>2</td>
+    <td>20</td>
+    <td>9</td>
+    <td>通过率：6.45%</td>
+</tr>
+</table>
+
+<div id='ending'>&nbsp;</div>
+    <div style=" position:fixed;right:50px; bottom:30px; width:20px; height:20px;cursor:pointer">
+    <a href="#"><span class="glyphicon glyphicon-eject" style = "font-size:30px;" aria-hidden="true">
+    </span></a></div>
+    
+</body>
+</html>

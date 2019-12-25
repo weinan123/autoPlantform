@@ -1,0 +1,109 @@
+#apiCases{
+    background-color: #f7f7f7;
+    float: left;
+    width: 88%;
+    margin-left: 260px;
+}
+
+#navSelBar{
+    width:85%;
+    margin-left: 37px;
+    margin-right: 37px;
+    margin-bottom:0px;
+    margin-top:37px;
+    background-color: #ffffff;
+    padding:15px;
+}
+#search{
+    padding-left: 19px;
+}
+
+#tableContent{
+    width:85%;
+    height: 85%;
+    margin-left: 37px;
+    margin-top:10px;
+    margin-bottom:37px;
+    margin-right: 37px;
+    background-color: #ffffff;
+    padding: 37px;
+}
+.tableStyles table, .tableStyles td, .tableStyles th {
+    border: 1px solid #EEEEEE;
+}
+
+.tableStyles td, .tableStyles th
+{
+    height:48px;
+    padding:10px;
+}
+
+#batchdel{
+    padding: 2px 6px;
+    margin-left: 10px;
+    margin-bottom: 2px;
+}
+
+.reportsPage{
+    background-color: #f7f7f7;
+    float: left;
+    width: 88%;
+    margin-left: 260px;
+}
+.pagetitle{
+    background-color: #FFFFFF;
+    margin-top:37px;
+    padding-left: 37px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: #2372A8;
+    font-family: PingFangSC-Semibold;
+    font-weight: bold;
+    letter-spacing: 0;
+    font-size: 24px;
+}
+.iconlink{
+    margin:6px;
+}
+.iconlink:link{
+    color:rgba(99,98,98,0.75)  !important;
+    text-decoration: none;
+}
+.iconlink:visited{
+    color:rgba(99,98,98,0.75)  !important;
+    text-decoration: line-through;
+}
+.iconlink:hover{
+    color:#2372A8  !important;
+    text-decoration: underline;
+}
+.iconlink:active {
+    color: #2372A8 !important;
+}
+.disabled{
+    pointer-events: none;
+}
+#responseCSS{
+    width:35%;
+    height: 120px;
+    text-align: left;
+    padding: 6px;
+    border-radius: 2px;
+    border: 1px solid #cccccc;
+    background-color:#FFFFFF;
+    resize: none;
+    margin: 5px;
+    font-size: 14px;
+}
+.itemCSS{
+    margin: 5px;
+    vertical-align:top;
+    display: inline-block;
+}
+.itemCSS1{
+    margin-top: 10px;
+    margin-right: 5px;
+    margin-left: 5px;
+    vertical-align:middle;
+    display: inline-block;
+}

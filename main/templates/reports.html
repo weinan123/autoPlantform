@@ -1,0 +1,473 @@
+{% extends 'newindex.html' %}
+{% block title %}<title> 结果报告</title> {% endblock %}
+{% block content %}
+<div class="reportsPage" id ="reports">
+        <div class="pagetitle" style="">
+            <p style="margin-top: 0px;margin-bottom: 0px;">测试结果报告</p>
+        </div>
+        <div class="tableContent" id="tableContent" role="form">
+            <div class="tableStyles" style="min-height: 620px;">
+                <table ref="tables" id="tableBody" style="width: 100%;">
+                    <thead>
+                    <tr>
+                        <th style="width: 8%">序号</th>
+                        <th style="width: 14%" v-if="searchNameFlag">报告名称
+                            <a href="#" class="tooltip-test iconlink" @click="searchNameMethod()" title="搜索">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </a>
+                        </th>
+                        <th style="width: 14%;font-weight: normal;font-size: 12px;" v-else>
+                            <input type="text" class="form-control" name="searchName" v-model="searchName"
+                            placeholder="请输入名称" @change="search()" style="float:left;width: 99%">
+                            <button type="button" class="close" style="float: left;width: 1%;margin-left: -20px;margin-top: 7px;" @click="clearInfo()" title="关闭">
+                                        ×
+                            </button>
+{#                            <a href="#" class="tooltip-test iconlink" style="float: right;">#}
+{#                              <span class="glyphicon glyphicon-remove"></span>#}
+{#                            </a>#}
+                        </th>
+                        <th style="width: 8%">环境</th>
+                        <th style="width: 10%" v-if="searchStartDate">开始时间
+                            <a href="#" class="tooltip-test iconlink" @click="searchStartDateMethod()" title="搜索">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </a>
+                        </th>
+                        <th style="width: 10%;font-weight: normal;font-size: 12px;" v-else>
+                            <input type="datetime-local" v-model="searchStart" style="float:left;width: 90%" @change="search()"/>
+                            <button type="button" class="close" style="float: left;width: 8%;margin-top: 2px;" @click="clearStartDate()" title="关闭">
+                                        ×
+                            </button>
+                        </th>
+                        <th style="width: 10%" v-if="searchEndDate">结束时间
+                            <a href="#" class="tooltip-test iconlink" @click="searchEndDateMethod()" title="搜索">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </a>
+                        </th>
+                        <th style="width: 10%;font-weight: normal;font-size: 12px;" v-else>
+                            <input type="datetime-local" v-model="searchEnd" style="float:left;width: 90%" @change="search()"/>
+                            <button type="button" class="close" style="float: left;width: 8%;margin-top: 2px;" @click="clearEndDate()" title="关闭">
+                                        ×
+                            </button>
+                        </th>
+                        <th style="width: 10%">用例总数</th>
+                        <th style="width: 8%">成功</th>
+                        <th style="width: 8%">失败</th>
+                        <th style="width: 8%">错误</th>
+                        <th style="width: 8%" v-if="searchUserFlag">执行者
+                            <a href="#" class="tooltip-test iconlink" @click="searchUserMethod()" title="搜索">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </a>
+                        </th>
+                        <th style="width: 8%;font-weight: normal;font-size: 12px;" v-else>
+                            <input type="text" class="form-control" name="searchUser" v-model="searchUser" @change="search()" style="float:left;width: 99%">
+                            <button type="button" class="close" style="float: left;width: 1%;margin-left: -20px;margin-top: 7px;" @click="clearUser()" title="关闭">
+                                        ×
+                            </button>
+                        </th>
+                        <th style="width: 8%">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(info,index) in reportList">
+                            <td><label class="form-check-label">
+                                    <input type="checkbox" class="selBtn" id="selBtn" v-bind:value="[info.id]" v-model="casesSel_list" @click="changeSel($event)">
+                                </label>
+                                {! index+ pageCount*(pageNum-1) +1 !}
+                            <td>{! info.report_runName !}</td>
+                            <td>{! info.environment !}</td>
+                            <td>{! info.startTime !}</td>
+                            <td>{! info.endTime !}</td>
+                            <td>{! info.totalNum !}</td>
+                            <td>{! info.successNum !}</td>
+                            <td>{! info.failNum !}</td>
+                            <td>{! info.errorNum !}</td>
+                            <td>{! info.executor !}</td>
+                            <td>
+                                <a class="tooltip-test iconlink" @mouseenter="enter()" data-trigger="hover" :href="['/viewreport/?report='+info.report_localName]" target="_blank" data-toggle="tooltip" title="查看">
+                                    <span class="glyphicon glyphicon-eye-open"></span>
+                                </a>
+                                <a class="tooltip-test iconlink" @mouseenter="enter()" data-trigger="hover" :href="['/viewreport/?report='+info.report_localName]" v-bind:download="info.report_runName" data-toggle="tooltip" title="下载">
+                                    <span class="glyphicon glyphicon-download"></span>
+                                </a>
+                                <a class="tooltip-test iconlink" @mouseenter="enter()" @click="delreport(info.id)" href="#" data-toggle="tooltip" title="删除">
+                                    <span class="glyphicon glyphicon-remove-circle"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div ref="selall" style="margin: 10px;">
+                    <label class="form-check-label">
+                        <input type="checkbox" id="selAllBtn" class="selAllBtn" v-model="isSelectAll" @click="selectAllBtn($event)">
+                    </label><span>&nbsp;全选&nbsp;</span>
+                    <button type="button" class="btn btn-default btn-sm" id="batchdel"  @click="batchdel()" v-if="permission_del">批量删除</button>
+                </div>
+            </div>
+            <div style="margin: 0px auto;width: auto;text-align: center;" v-if="pageview">
+                <ul class="pagination">
+                    <li v-bind:class="disflag_left" style="cursor:pointer"><a @click="fristPage(pageNum)">首页</a></li>
+                    <li v-bind:class="disflag_left" style="cursor:pointer"><a @click="cutPage(pageNum)">上一页</a></li>
+                    <li><a style="background-color: #428bca;color: #FFFFFF;border-top: 1px solid #428bca;border-bottom: 1px solid #428bca;">{! pageNum !}</a></li>
+                    <li v-bind:class="disflag_right" style="cursor:pointer"><a @click="addPage(pageNum)">下一页</a></li>
+                    <li v-bind:class="disflag_right" style="cursor:pointer"><a @click="lastPage(pageNum)">末页</a></li>
+                </ul>
+            </div>
+        </div>
+{#    <p>{! casesSel_list !}</p>#}
+{#    <p>{! cases_list !}</p>#}
+{#    <p>{! delList !}</p>#}
+</div>
+{% endblock %}
+{% block vuejs %}
+    <script type="text/javascript">
+var vmRs = new Vue({
+    delimiters: ['{!', '!}'],
+    el: '#reports',
+    data: {
+        reportList: "",
+        delList:[],
+        pageNum:1,
+        disflag_left:"disabled",
+        disflag_right:"",
+        pageCount: 10,
+        totalCount:0,
+        pageview: false,
+        isSelectAll: false,
+        cases_list: [],
+        casesSel_list: [],
+        permission:{},
+        permission_del:false,
+        searchNameFlag:true,
+        searchName:"",
+        searchStartDate:true,
+        searchEndDate:true,
+        searchStart: "",
+        searchEnd: "",
+        searchUserFlag: true,
+        searchUser: "",
+    },
+    created() {
+        vm1.$data.currentSort = 4;
+        this.getPermission();
+    },
+    mounted(){
+        this.getreportList();
+    },
+    methods: {
+        enter(){
+            $("[data-toggle='tooltip']").tooltip();
+        },
+        getPermission(){
+            axios.get('/getPermission/',{
+                    params: {
+                        username: vm1.$data.username,
+                    }
+                    })
+                .then(resp =>{
+                    {#console.log(resp.data);#}
+                    this.permission = resp.data.permits;
+                    this.permission_del = this.permission.permission_del;
+                }).catch(err=> {
+                console.log('请求失败:' + err.status + ',' + err.statusText);
+            });
+        },
+        getreportList() {
+            var target = document.getElementById("tableBody");
+            var spinner1 = Spinner({top:"1"}).spin(target);
+            if(this.totalCount>0 && (this.totalCount / this.pageCount)<=this.pageNum-1 && (this.pageNum>1)){
+                this.pageNum = this.pageNum -1;
+            }
+            axios.get('/reportList/', {
+                params:{
+                        pageNum: this.pageNum,
+                        pageCount:this.pageCount,
+                        searchName: this.searchName,
+                        searchStart: this.searchStart,
+                        searchEnd: this.searchEnd,
+                        searchUser: this.searchUser,
+                    }
+            })
+                .then(resp => {
+                    let code = resp.data.code;
+                    let info = resp.data.info;
+                    if(code === 0){
+                        this.reportList = resp.data.datas;
+                        this.cases_list = [];
+                        for(let i=0;i<this.reportList.length;i++){
+                            let id = this.reportList[i].id;
+                            if(this.cases_list.indexOf(id) === -1){
+                                this.cases_list.push(id);
+                            }
+                        }
+                        this.totalCount = resp.data.totalCount;
+                        if((this.totalCount / this.pageCount) > 1){
+                            this.pageview = true;
+                            if(this.pageNum >= (this.totalCount / this.pageCount)){
+                                this.disflag_right = "disabled";
+                            }
+                        }else{
+                            this.pageview = false;
+                        }
+                        spinner1.spin();
+                        this.selectCheck();
+                    }else{
+                        spinner1.spin();
+                        alert(info);
+                    }
+                }).catch(err => {
+                console.log('请求失败:' + err.status + ',' + err.statusText);
+            })
+        },
+        selectCheck(){
+                // 根据case行的选择设置换页之后全选的状态
+                let case_list = this.cases_list;
+                let casesSel_list = [];
+                for(let j=0;j<this.casesSel_list.length;j++){
+                    casesSel_list.push(this.casesSel_list[j][0]);
+                }
+                for(let i=0;i<case_list.length;i++){
+                    if(casesSel_list.indexOf(case_list[i]) > -1){
+                        this.delList.push(case_list[i]);
+                    }
+                }
+                if((this.delList.length) === this.cases_list.length){
+                    this.isSelectAll=true;
+                }else{
+                    this.isSelectAll=false;
+                }
+            },
+        delreport(id){
+            let self = this;
+            zdconfirm("确认要删除吗？", function (r) {
+                if (r) {
+                    axios.post('/reportDelete/', {
+                        params: {
+                            id: id
+                        }
+                    })
+                        .then(resp => {
+                            this.result = resp.data;
+                            let info = resp.data.info;
+                            let code = resp.data.code;
+                            if (code === 0) {
+                                toastr.options = {
+                                     closeButton: false,
+                                     debug: false,
+                                     progressBar: false,
+                                     positionClass: "toast-top-center",
+                                     onclick: null,
+                                     showDuration: "300",
+                                     hideDuration: "1000",
+                                     timeOut: "2000",
+                                     extendedTimeOut: "1000",
+                                     showEasing: "swing",
+                                     hideEasing: "linear",
+                                     showMethod: "fadeIn",
+                                     hideMethod: "fadeOut"
+                                };
+                                toastr.success("删除成功");
+                                self.totalCount = self.totalCount - 1;
+                                self.getreportList();
+                            } else {
+                                alert("删除失败:" + info);
+                                self.getreportList();
+                            }
+                        })
+                        .catch(err => {
+                            console.log('请求失败:' + err.status + ',' + err.statusText);
+                        })
+                }
+            })
+        },
+        changeSel(e){
+                let chev = e.target.checked;
+                let id = parseInt(e.target.value);
+                if(chev === true) {
+                    if(this.delList.indexOf(id) === -1) {
+                        this.delList.push(id);
+                    }
+                 } else {
+                    let index = this.delList.indexOf(id);
+                        if (index > -1) {
+                            this.delList.splice(index, 1);
+                        }
+                 }
+                if((this.delList.length) === this.cases_list.length){
+                    this.isSelectAll=true;
+                }else{
+                    this.isSelectAll=false;
+                }
+            },
+        selectAllBtn(e){
+                let checked = e.target.checked;
+                if(checked){
+                    for(let i=0;i<this.cases_list.length;i++){
+                        let caseid = parseInt(this.cases_list[i]);
+                        let inflag = false;
+                        for(let j=0;j<this.casesSel_list.length;j++){
+                            if(this.casesSel_list[j].indexOf(caseid) > -1){
+                                inflag = true;
+                                break;
+                            }
+                        }
+                        if(inflag === false){
+                            this.casesSel_list.push([caseid]);
+                        }
+                        if(this.delList.indexOf(caseid) === -1){
+                            this.delList.push(caseid);
+                        }
+                    }
+                }else{
+                    this.delList = [];
+                    for(let i=0;i<this.cases_list.length;i++){
+                        let caseid = parseInt(this.cases_list[i]);
+                        for(let j=0;j<this.casesSel_list.length;j++){
+                            if(this.casesSel_list[j].indexOf(caseid) > -1){
+                                this.casesSel_list.splice(j, 1);
+                                break;
+                            }
+                        }
+                    }
+                }
+            },
+        batchdel(){
+            let dellist = [];
+            for(let j=0;j<this.casesSel_list.length;j++){
+                dellist.push(this.casesSel_list[j][0]);
+            }
+            {#console.log("dellist: "+ dellist);#}
+            let self = this;
+            toastr.options = {
+                                        closeButton: false,
+                                        debug: false,
+                                        progressBar: false,
+                                        positionClass: "toast-top-center",
+                                        onclick: null,
+                                        showDuration: "300",
+                                        hideDuration: "1000",
+                                        timeOut: "2000",
+                                        extendedTimeOut: "1000",
+                                        showEasing: "swing",
+                                        hideEasing: "linear",
+                                        showMethod: "fadeIn",
+                                        hideMethod: "fadeOut"
+                                    };
+            if (dellist.length !== 0) {
+                zdconfirm("删除之后无法恢复，确认要删除？", function (r) {
+                    if (r) {
+                        axios.post('/reportbatchdel/', {
+                            params: {
+                                idList: dellist,
+                            },
+                        })
+                            .then(resp => {
+                                {#console.log(resp.data);#}
+                                let code = resp.data.code;
+                                let info = resp.data.info;
+                                if (code === 0) {
+                                    alert("删除成功，结果：" + info);
+                                    self.totalCount = self.totalCount - resp.data.successNum;
+                                    self.casesSel_list = [];
+                                    self.delList = [];
+                                    self.getreportList();
+                                } else {
+                                    toastr.error("删除失败");
+                                    self.getreportList();
+                                }
+                            })
+                            .catch(err => {
+                                console.log('请求失败:' + err.status + ',' + err.statusText);
+                            })
+                    }
+                })
+            }
+        },
+        addPage(num){
+                this.pageNum = num +1;
+                if(this.pageNum > 1){
+                    this.disflag_left = "";
+                }
+                let totalNums = this.totalCount / this.pageCount;
+                if(this.pageNum >= totalNums){
+                    this.disflag_right = "disabled";
+                }
+                this.reportList = [];
+                this.delList = [];
+                this.getreportList();
+            },
+        cutPage(num){
+                this.pageNum = num -1;
+                if(this.pageNum === 1){
+                    this.disflag_left = "disabled";
+                }
+                let totalNums = this.totalCount / this.pageCount;
+                if(this.pageNum < totalNums){
+                    this.disflag_right = "";
+                }
+                this.reportList = [];
+                this.delList = [];
+                this.getreportList();
+            },
+        fristPage(num){
+                this.pageNum = 1;
+                this.disflag_left = "disabled";
+                let totalNums = this.totalCount / this.pageCount;
+                this.disflag_right = "";
+                this.reportList = [];
+                this.delList = [];
+                this.getreportList();
+        },
+        lastPage(num){
+            let totalNums = Math.ceil(this.totalCount / this.pageCount);
+            this.pageNum = totalNums;
+            this.disflag_left = "";
+            this.disflag_right = "disabled";
+            this.reportList = [];
+            this.delList = [];
+            this.getreportList();
+        },
+        searchNameMethod(){
+            this.searchNameFlag = false;
+        },
+        searchStartDateMethod(){
+            this.searchStartDate = false;
+        },
+        searchEndDateMethod(){
+            this.searchEndDate = false;
+        },
+        searchUserMethod(){
+            this.searchUserFlag = false;
+        },
+        clearInfo(){
+            this.searchName="";
+            this.searchNameFlag = true;
+            this.pageNum = 1;
+            this.getreportList();
+        },
+        clearStartDate(){
+            this.searchStart = "";
+            this.searchStartDate = true;
+            this.pageNum = 1;
+            this.getreportList();
+        },
+        clearEndDate(){
+            this.searchEnd = "";
+            this.searchEndDate = true;
+            this.pageNum = 1;
+            this.getreportList();
+        },
+        clearUser(){
+            this.searchUser = "";
+            this.searchUserFlag = true;
+            this.pageNum = 1;
+            this.getreportList();
+        },
+        search(){
+            this.pageNum = 1;
+            this.getreportList();
+        },
+
+    }
+})
+    </script>
+{% endblock %}

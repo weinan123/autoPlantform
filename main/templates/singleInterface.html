@@ -1,0 +1,1065 @@
+{% extends 'newindex.html' %}
+{% block title %}<title> 单接口</title> {% endblock %}
+{% block script %}
+<link href="/static/css/singleInterface.css" rel="stylesheet">
+<link href="/static/css/myindex.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <!--<div class="row" style="border: #337ab7">-->
+<div class="content" id ="app2" style="height: 100%;">
+ <div class="headerdiv">
+    {% comment %}<form class="bs-example bs-example-form" role="form">
+		<div class="row" >
+			<div class="col-lg-6">
+				<div class="input-group">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							HOST
+						</button>
+					</div><!-- /btn-group -->
+					<input v-model="url" type="text" class="form-control" placeholder="请求HOST">
+				</div><!-- /input-group -->
+			</div><!-- /.col-lg-6 -->
+            <div class="col-lg-3">
+            </div>
+		</div><!-- /.row -->
+	</form>{% endcomment %}
+     <div style="margin-left: 13%;padding-top: 40px">
+	<form class="bs-example bs-example-form" role="form">
+		<div class="row" >
+            <div class="col-lg-3">
+				<div class="input-group">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							HOST
+						</button>
+					</div><!-- /btn-group -->
+					<input  type="text" v-model="host" class="form-control" placeholder="请求HOST">
+				</div><!-- /input-group -->
+			</div><!-- /.col-lg-6 -->
+			<div class="col-lg-5" style="padding-left: 0px">
+				<div class="input-group">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							{! method !}
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu">
+							<li><a @click="getMethod('GET')">GET</a></li>
+							<li><a @click="getMethod('POST')">POST</a></li>
+						</ul>
+					</div><!-- /btn-group -->
+					<input v-model="url" type="text" class="form-control" placeholder="请求地址">
+				</div><!-- /input-group -->
+			</div><!-- /.col-lg-6 -->
+            <div class="col-lg-3" style="width: 18%">
+                <button id="fat-btn" class="btn-save" data-loading-text="Loading..."
+                type="button" @click="sendQuest()">测试
+                </button>
+                <button id="fat-btn" class="btn-save" style="background:rgba(35,114,168,0.15);border: 1px solid rgba(35,114,168,0.15);color: #2372A8 " data-toggle="modal"
+                type="button" @click="getProjectList()">保存
+                </button>
+            </div>
+		</div><!-- /.row -->
+	</form>
+     </div>
+ </div>
+    <div class="formContent" style="height: 100%">
+        <div style="margin-left: 10%;" >
+        <div class="pageheader">
+        <div v-for="navtabName,index in navtabList" class="projectCss" style="height: 0px;cursor:pointer" ><a :class="{'projectnamesel':currentSort==index}" class="projectname"  @click="makeFrom(index)">{! navtabName.name !}</a>
+        <div :class="{'isshow':currentSort!==index}" style="height: 4px;background-color: #2372A8;margin-top: 10px;margin-left:5px;margin-right:5px;text-align: center "></div>
+        </div>
+            <div v-if="showState === 0" class="projectCss" style="height: 0px">
+            <button class="uploadbtn" data-toggle="modal" data-target="#loadHeader" ><span class="glyphicon glyphicon-cloud-download" style="color:#F5A623 "></span>&nbsp&nbsp
+                <span class="uploadbtn_font">导入</span></button>
+            </div>
+    </div>
+    <div class="tablediv">
+    <div class="row" v-if="showState === 1">
+        <div class=" col-lg-2 col-md-3 col-sm-3  radio " style="width: 19%;float: left">
+        <label>
+            <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" v-model="checkv" @click="showBodyform(0)"> Form-data
+        </label>
+        </div>
+        <div class=" col-lg-1 radio " style="width: 15%;margin-top: 10px">
+        <label>
+            <input type="radio" name="optionsRadios" id="optionsRadios1" value="option2" v-model="checkv"  @click="showBodyform(1)"> JSON
+        </label>
+        </div>
+        <div class="col-lg-1 radio " style="width: 15%;margin-top: 10px">
+        <label>
+            <input type="radio" name="optionsRadios" id="optionsRadios1" value="option3" v-model="checkv" @click="showBodyform(2)"> XML
+        </label>
+        </div>
+        <div class="col-lg-1 radio" style="width: 15%;margin-top: 10px">
+        <label>
+            <input type="radio" name="optionsRadios" id="optionsRadios1" value="option4" v-model="checkv"  @click="showBodyform(3)"> Raw
+        </label>
+        </div>
+    </div>
+
+    <table class="table table-bordered" v-if="(showState === 0) ">
+
+           <thead>
+           {% comment %}<tr>
+           <th colspan="3"><a class="btn btn-info btn-sm" data-toggle="modal" data-target="#loadHeader">
+              <span class="glyphicon glyphicon-save"></span> 导入
+           </a></th></tr>{% endcomment %}
+           <tr>
+              <th>标签</th>
+              <th>内容</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody >
+            <tr v-for="headerVal,index in headerVals">
+                <td col-xs-2>
+                    <input list="test" type="text" class="form-control" v-model="headerVal.type">
+                    <datalist id="test">
+                    <option value="" >头部标签</option>
+                    <option value="Content-Type" >Content-Type</option>
+                    <option value="Accept" >Accept</option>
+                    <option value="Accept-Charset" >Accept-Charset</option>
+                    <option value="Accept-Encoding" >Accept-Encoding</option>
+                    <option value="Accept-Language" >Accept-Language</option>
+                    <option value="User-Agent" >User-Agent</option>
+                    <option value="Cookie" >Cookie</option>
+                    <option value="Content-Length" >Content-Length</option>
+                    <option value="Connection" >Connection</option>
+                    <option value="Authorization" >Authorization</option>
+                    <option value="X-Product" >X-Product</option>
+                    <option value="X-Requested-With" >X-Requested-With</option>
+                    <option value="X-encryptflag" >X-encryptflag</option>
+                    </datalist></td>
+                <td col-xs-2><input type="text" class="form-control" id="name" placeholder="头部内容" v-model="headerVal.value">{{ headerVal.value  }}</td>
+                <td col-xs-2><button type="button" class="btn-local" @click="insertTable(showState,showbodyState)">增加</button>
+                    <button type="button" class="btn-delete" @click="deleteHeader(index,showState,showbodyState)">删除</button></td>
+            </tr>
+          </tbody>
+    </table>
+    <table class="table table-bordered" v-if="(showState === 1 && showbodyState === 0)">
+          <thead>
+            <tr>
+              <th>参数名</th>
+              <th>类型</th>
+              <th>参数值</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="bodyFVal,index in bodyFVals">
+                <td col-xs-1><input type="text" class="form-control" id="name" placeholder="参数名" v-model="bodyFVal.name">{{ bodyFVal.name }}</td>
+                <td col-xs-4><select class="form-control" name="selectPrior" v-model="bodyFVal.type">
+                    <option value="Text" selected>Text</option>
+                    <option value="file" >file</option>
+                </select></td>
+                <td col-xs-3>
+                    <input v-if="bodyFVal.type==='Text'||bodyFVal.type===''" type="text" class="form-control" id="name" placeholder="参数值" v-model="bodyFVal.value">
+                    {{ bodyFVal.value }}
+                   {% comment %} <input  v-if="bodyFVal.type==='file'" type="file" id="inputfile" ref="file">{% endcomment %}
+                    <form id='mainForm' v-if="bodyFVal.type==='file'"  method="post" name="mainForm" @submit="uploadfile()">
+                        <input type="button" class="btn btn-sm btn-info " value="选择文件" onclick="document.mainForm.excel.click()">
+                        <a id="filename">{! fileName !}</a>
+                        <input type="file" name="excel" id="excel" ref="file" accept="application/vnd.ms-excel" style="display:none" @change="changeText(this)">
+                    </form>
+                </td>
+                <td col-xs-3><button type="button" class="btn-local" @click="insertTable(showState,showbodyState)">增加</button>
+                             <button type="button" class="btn-delete" @click="deleteHeader(index,showState,showbodyState)">删除</button></td>
+            </tr>
+          </tbody>
+    </table>
+    <table class="table table-bordered" v-if="(showState === 1 && showbodyState === 1)"  >
+          <thead>
+            <tr>
+              <th>参数名</th>
+              <th>类型</th>
+              <th>参数值</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="bodyJVal,index in bodyJVals">
+                <td col-xs-1><input type="text" class="form-control" id="name" placeholder="参数名" v-model="bodyJVal.name">{{ bodyJVal.name }}</td>
+                <td col-xs-4><select class="form-control" name="selectPrior" v-model="bodyJVal.type">
+                    <option value="String" selected>String</option>
+                    <option value="boolean" >boolean</option>
+                    <option value="array" >array</option>
+                    <option value="number" >number</option>
+                    <option value="object" >object</option>
+                    <option value="null" >null</option>
+                </select></td>
+                <td col-xs-3><input type="text" class="form-control" id="name" placeholder="参数值" v-model="bodyJVal.value" >{{ bodyJVal.value }}</td>
+                <td col-xs-3><button type="button" class="btn-local" @click="insertTable(showState,showbodyState)">增加</button>
+                    <button type="button" class="btn-delete" @click="deleteHeader(index,showState,showbodyState)">删除</button></td>
+            </tr>
+          </tbody>
+    </table>
+    <table class="table table-bordered" v-if="(showState === 1 && showbodyState === 2)" s >
+          <thead>
+            <tr>
+              <th>参数名</th>
+              <th>类型</th>
+              <th>参数值</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="bodyXVal,index in bodyXVals">
+                <td col-xs-1><input type="text" class="form-control" id="name" placeholder="参数名" v-model="bodyXVal.name">{{ bodyXVal.name }}</td>
+                <td col-xs-4><select class="form-control" name="selectPrior" v-model="bodyXVal.type" >
+                    <option value="Object" selected>Object</option>
+
+                </select></td>
+                <td col-xs-3><input type="text" class="form-control" id="name" placeholder="参数值" v-model="bodyXVal.value">{{ bodyXVal.value }}</td>
+                <td col-xs-3><button type="button" class="btn-local" @click="insertTable(showState,showbodyState)">增加</button>
+                             <button type="button" class="btn-delete" @click="deleteHeader(index,showState,showbodyState)">删除</button></td>
+            </tr>
+          </tbody>
+    </table>
+    <div class="row"  v-if="(showState === 1 && showbodyState === 3) " >
+         <div class="col-lg-12 form-group">
+                <label for="name">ROW数据</label>
+                <textarea class="form-control" rows="10" v-model="rawValue"></textarea>
+         </div>
+     </div>
+    <table class="table table-bordered" v-if="showState === 2">
+          <thead>
+            <tr>
+              <th>参数名</th>
+              <th>参数值</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="getVal,index in getVals">
+             <td col-xs-1><input type="text" class="form-control" id="name" placeholder="参数名" v-model="getVal.name">{{ getVal.name }}</td>
+             <td col-xs-1><input type="text" class="form-control" id="name" placeholder="参数值" v-model="getVal.value">{{ getVal.value }}</td>
+             <td col-xs-3><button type="button" class="btn-local" @click="insertTable(showState,showbodyState)">增加</button>
+                    <button type="button" class="btn-delete" @click="deleteHeader(index,showState,showbodyState)">删除</button></td>
+            </tr>
+          </tbody>
+    </table>
+    {% comment %}<p v-if="showState === 3">333333</p>{% endcomment %}
+    <div v-if="showState === 3"  style="padding-top: 20px;width: 70%"  >
+        <form role="form" class="form-horizontal">
+                            <div class="form-group">
+                               <label  for="version" class="col-sm-2">secret_key:</label>
+                               <div class="col-sm-6">
+                               <input  class="form-control"  v-model="secret_key" >
+                               </input>
+                               </div>
+                                <div class="col-sm-4"></div>
+                            </div>
+                            <div class="form-group">
+                               <label  for="version" class="col-sm-2">key_id:</label>
+                               <div class="col-sm-6">
+                                   <input  class="form-control"  v-model="key_id" >
+                               </div>
+                                <div class="col-sm-4"><button  type="button" class="btn-save" style="background-color: #03BABF;border: 1px solid #03BABF;" @click="returnAuthorization()">生成</button></div>
+                            </div>
+
+                            <div class="form-group">
+                                 <label  for="version" class="col-lg-2">Authorization:</label>
+                               <div class="col-lg-10">
+                                   <textarea  class="form-control"  v-model="Authorization" rows="4" ></textarea>
+                               </div>
+                        </div>
+                        </form>
+    </div>
+    <div v-if="showState === 5" style="width: 70%;">
+        <form role="form" class="form-horizontal">
+        <h4>Authorization</h4><br>
+        <div class="form-group">
+          <label  for="version" class="col-sm-1">用户名:</label>
+          <div class="col-sm-3">
+            <input  class="form-control"  placeholder="请输入用户名">
+       </div>
+        </div>
+        <div class="form-group">
+            <label  for="version" class="col-sm-1">密码:</label>
+            <div class="col-sm-3">
+                <input  class="form-control" placeholder="请输入密码">
+            </div>
+        </div>
+        </form>
+    </div>
+    <div v-if="showState === 4" style="border: 1px solid #ccc;padding-left: 25px;padding-top: 20px;width: 97%">
+        <form role="form" class="form-horizontal">
+        <div class="form-group">
+            <label  for="version" >是否跟随重定向:&nbsp;&nbsp;&nbsp;&nbsp;
+            <input  v-model="isRediret" type="checkbox" data-size="small" value="2" ></label><br>
+
+        </div>
+        <div class="form-group">
+            <label  for="version" >接口是否加密:</label>&nbsp;&nbsp;&nbsp;&nbsp;
+            <input v-model="isScreat"  type="checkbox" value="1" id="isTeam" ><br>
+        </div>
+        </form>
+    </div>
+            </div>
+    <div class="row" style="width: 70%;margin-left: 25px" >
+         <div class="col-lg-12 form-group">
+             <div style="float: left;width: 100%">
+                 <span class="projectnamesel" style="float: left">断言数据：</span>
+                 <p v-if="assert === true" class="assertMessage">断言成功</p>
+                 <p v-if="assert === false" class="assertMessage" style="color: red">断言失败</p>
+             </div>
+                <textarea style="margin-top: 10px;height: 150px;resize: none" v-model="assertData" class="form-control" rows="15">
+                </textarea>
+         </div>
+     </div>
+
+    <div class="row" style="width: 70%;margin-left: 25px" >
+         <div class="col-lg-6 form-group">
+                <span class="projectnamesel">请求数据：</span>
+                <textarea  style="margin-top: 10px;height: 314px;resize: none" v-model="request_infor" class="form-control" rows="15"></textarea>
+         </div>
+         <div class="col-lg-6 form-group" >
+                <span class="projectnamesel">请求结果：</span>
+                <pre id="out_pre" style="height: 314px;margin-top: 10px" class="form-control" rows="15"></pre>
+         </div>
+     </div>
+    <!--模态窗口-->
+    <div  class="modal fade" id="newcase" tabindex="-1" role="dialog" aria-labelledby="newapiLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 450px;">
+                    <div class="modal-content" id="newinfo">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="newapiLabel">
+                                保存用例
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <form role="form" class="form-horizontal">
+                            <div class="form-group">
+                               <label  for="version" class="col-sm-3">用例名称:</label>
+                               <div class="col-sm-7">
+                               <input  class="form-control"  v-model="caseName" placeholder="请输入用例名称">
+                               </input>
+                               </div>
+                                <div class="col-sm-2"></div>
+                            </div>
+                            <div class="form-group">
+                               <label  for="version" class="col-sm-3">项目名称:</label>
+                               <div class="col-sm-7">
+                               <select  class="form-control" name="selectPrior" v-model="projectSelect" @change="selectModel($event)">
+                                   <option value="" selected>请选择</option>
+                                   <option  v-for="item in projectList" :value="item">{! item !}</option>
+                               </select>
+                               </div>
+                                <div class="col-sm-2"></div>
+                            </div>
+                            <div class="form-group">
+                               <label  for="version" class="col-sm-3">模块名称:</label>
+                               <div class="col-sm-7">
+                               <select class="form-control" name="selectPrior" v-model="modelSelect">
+                                 <option value="" selected>请选择</option>
+                                 <option  v-for="model in modelList" :value="model" >{! model !}</option></select>
+                               <div class="col-sm-2"></div>
+                            </div>
+                        </div>
+                        </form>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                            <input type="submit" class="btn btn-primary" @click="newCase()" data-dismiss="modal"/>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+</div>
+      <!--模态窗口导入Header-->
+    <div class="modal fade" id="loadHeader" tabindex="-1" role="dialog" aria-labelledby="newapiLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 450px;margin: 100px auto">
+                    <div class="modal-content" id="newinfo">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="newapiLabel">
+                                导入头部数据
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <textarea class="form-control" rows="8" v-model="headerText" placeholder="请输入形式为json格式字符串数据,
+     例如：{'data':0,'msg':123}"></textarea>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                            <input type="submit" class="btn btn-primary" @click="loadHeader()" data-dismiss="modal"/>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+</div>
+     <!--提示框-->
+</div>
+</div>
+</div>
+{% endblock %}
+{% block vuejs%}
+<script type="text/javascript">
+var vm = new Vue({
+    delimiters: ['{!', '!}'],
+    el:'#app2',
+    data:{
+            currentSort:0,
+            navtabList:[{name:"请求头部"},{name:"请求体"},{name:"REST参数"},{name:"请求加密"},{name:"高级设置"}],
+            file:"",
+            fileName:"请选择文件",
+            checkv : "option1",
+            //样式选中互斥
+            isRediret: "",
+            isScreat:"",
+            assertData:"",
+            aid:0,
+            pid:0,
+            initflag:false,
+            showState: 0,
+            showbodyState: 0,
+            header: "",
+            resultData: {},
+            listcass: [{
+                active: "active",
+                num: 0,
+                name: "请求头部"
+            },
+                {
+                    active: "",
+                    num: 1,
+                    name: "请求体"
+                }],
+            //增加删除列表
+            headerVals: [{
+                type: "",
+                value: ""
+            }],
+            bodyFVals: [{
+                type: "",
+                name: "",
+                value: ""
+            }],
+            bodyJVals: [{
+                type: "",
+                name: "",
+                value: ""
+            }],
+            bodyXVals: [{
+                type: "",
+                name: "",
+                value: ""
+            }],
+            getVals:[{
+                 name: "",
+                value: ""
+            }],
+            //获取请求方式
+            method: "请求方式",
+            //请求url
+            url: "",
+            host:"",
+            result: "",
+            request_infor: "",
+            checked: true,
+            rawValue: "",
+            count: 1,
+            projectList: [],
+            modelList:[],
+            projectSelect: "",
+            allmodels:"",
+            modelSelect:"",
+            data_to_send :{},
+            caseName:"",
+            //交易认证参数
+            secret_key:"",
+            key_id:"",
+            Authorization:"",
+            headerText:"",
+            assert:""
+
+    },
+
+    created(){
+                vm1.$data.navTab[1].collapse = "";
+                $("#p20").css("color", "#2372A8");
+            },
+    mounted:function(){
+        let args = location.search.substr(1);
+        let args1 = location.pathname.substring();
+        //console.log(args1);
+        if(args){
+            this.initflag=true;
+            this.initInfos(args);
+        }
+    },
+    methods:{
+        //动态显示参数为文件的文件名
+        changeText(e) {
+            let filenames = this.$refs.file[0].files[0].name;
+            this.fileName =filenames
+        },
+        //上传参数为文件的请求
+        uploadfile(){
+            let requestConfig = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                };
+            var filename = this.$refs.file[0].files[0].name;
+            var files = this.$refs.file[0].files[0];
+            let formData = new FormData();
+            formData.append('filename', filename);
+            formData.append('files', files);
+            axios.post("/pararmsFiles/", formData, requestConfig ).then(function (response) {
+                    //console.log("res:", response);
+
+                }).catch(err=>{
+                    console.log('请求失败:'+err.status+','+err.statusText);
+                })
+        },
+        initInfos(args){
+            let param={};
+            if(args !== ""){
+                let strs = args.split("&");
+                for(let i = 0; i < strs.length; i++) {
+                     param[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+                }
+            }
+            let id = param["id"];
+            this.aid = parseInt(id);
+            //console.log(id);
+            axios.get('/getapiInfos/',{
+                    params: {
+                        apiid:id,
+                        environment:"QA",
+                    }
+                })
+                .then(resp =>{
+                    let result = resp.data;
+                    this.url = result.datas.url;
+                    if(result.datas.method !== ""){
+                        this.method = result.datas.method;
+                    }
+                    this.pid = result.datas.listid;
+                    this.projectSelect = result.datas.projectName;
+                    this.modelList = result.module_list;
+                    //console.log("modelList:", this.modelList);
+                    this.modelSelect = result.datas.moduleName;
+                    //console.log(this.modelSelect);
+                    this.caseName = result.datas.name;
+                    this.host = result.datas.host;
+                    if(result.datas.header.length !== 0) {
+                        this.headerVals = result.datas.header;
+                    }
+                    this.assertData = result.datas.assert;
+                    //console.log("***",this.headerVals);
+                    //console.log("---",result.datas.body);
+                    if(result.datas.body.length !== 0) {
+                        let bodyinfo = result.datas.body;
+                        let showbody = result.showbody;
+                        //console.log("showbody:",showbody);
+                        if(showbody === 0){
+                            this.showbodyState = showbody;
+                            this.checkv = "option1";
+                            this.bodyFVals = bodyinfo;
+                        }else if(showbody === 1){
+                            //console.log("body:",bodyinfo);
+                            this.showbodyState = showbody;
+                            this.checkv = "option2";
+                            this.bodyJVals = bodyinfo;
+                        }else if(showbody === 2){
+                            this.showbodyState = showbody;
+                            this.checkv = "option3";
+                            this.bodyXVals = bodyinfo;
+                        }else if(showbody === 3){
+                            this.showbodyState = showbody;
+                            this.checkv = "option4";
+                            this.rawValue = bodyinfo[0].value;
+                        }
+                    }
+                }).catch(err=> {
+                console.log('请求失败:' + err.status + ',' + err.statusText);
+            })
+        },
+        //获取所有项目列表
+        getProjectList(){
+            if(this.host==="" || this.method==="请求方式"|| this.url===""|| this.method===""){
+                $('#newcase').modal('hide');
+                //document.getElementById("#newcase").modal('hide');
+                alert("请求host,url,methods参数不能为空");
+
+            }else {
+                $('#newcase').modal('show');
+                axios.get("/getProjectList/", params = {}).then(response => {
+                    //console.log(response.data);
+                    var returnlist = [];
+                    this.allmodels = response.data.model_list;
+                    for (var p = 0; p < response.data.project_list.length; p++) {
+                        //console.log(response.data.project_list[p]);
+                        var name = response.data.project_list[p]["projectName"];
+                        //console.log(name);
+                        returnlist.push(name);
+                    }
+                    this.projectList = returnlist;
+                    //console.log(this.projectList);
+                }).catch(err => {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                })
+            }
+
+        },
+        //获取项目对应模块名称
+        selectModel(e){
+             //console.log(e.target.value);
+             this.modelList=[];
+             this.modelSelect="";
+             var params = e.target.value;
+             var models = this.allmodels;
+             //console.log(this.allmodels);
+             for(var q=0;q<models.length;q++){
+                 var name = models[q]["projectName"];
+                 if(params===name && models[q]["moduleName"]!=="" ) {
+                     {% comment %}if(this.modelList.length===0){{% endcomment %}
+                         this.modelList.push(models[q]["moduleName"])
+                     }
+                     {% comment %}else{
+                         for (var r = 0; r < this.modelList.length; r++) {
+                         if (models[q]["moduleName"] === this.modelList[r]){
+                                break
+                            }
+                         else{
+                         this.modelList.push(models[q]["moduleName"])}
+                        }{% endcomment %}
+                     {% comment %}}{% endcomment %}
+                {% comment %} }{% endcomment %}
+             }
+             //console.log(this.modelList);
+        },
+        getEdit(json){
+            var container = document.getElementById('jsoneditor');
+            var options = {
+                mode: 'text',
+                modes: ['text', 'code'],
+                onEditable: function (node) {
+              if (!node.path) {
+                return false;
+              }
+            },
+            onError: function (err) {
+              alert(err.toString());
+            },
+            onModeChange: function (newMode, oldMode) {
+                  //console.log('Mode switched from', oldMode, 'to', newMode);
+                }
+              };
+            this.editor1 = new JSONEditor(container,options,json);
+            //return editor1
+        },
+        makeFrom(params){
+            this.currentSort=params;
+            if(this.initflag === false){
+                this.showState = params;
+                //this.showbodyState=0;
+                //this.changeCss(params);
+            }else{
+                this.showState = params;
+                //this.changeCss(params);
+            }
+        },
+        showBodyform(params){
+            this.showbodyState = params;
+            if(this.initflag === false) {
+                if (params === 0 && this.showState === 1) {
+                    this.bodyJVals = [{
+                        type: "",
+                        name: "",
+                        value: ""
+                    }];
+                    this.bodyXVals = [{
+                        type: "",
+                        name: "",
+                        value: ""
+                    }];
+                    this.rawValue = ""
+                } else if (params === 1 && this.showState === 1) {
+                    this.bodyFVals = [{
+                        type: "",
+                        name: "",
+                        value: ""
+                    }];
+                    this.bodyXVals = [{
+                        type: "",
+                        name: "",
+                        value: ""
+                    }];
+                    this.rawValue = ""
+                } else if (params === 2 && this.showState === 1) {
+                    //console.log(this.rawValue);
+                    this.bodyFVals = [{
+                        type: "",
+                        name: "",
+                        value: ""
+                    }];
+                    this.bodyJVals = [{
+                        type: "",
+                        name: "",
+                        value: ""
+                    }];
+                    this.rawValue = ""
+                } else if (params === 3 && this.showState === 1) {
+                    this.bodyFVals = [{
+                        type: "",
+                        name: "",
+                        value: ""
+                    }];
+                    this.bodyJVals = [{
+                        type: "",
+                        name: "",
+                        value: ""
+                    }];
+                    this.bodyXVals = [{
+                        type: "",
+                        name: "",
+                        value: ""
+                    }];
+
+                }
+            }
+        },
+        insertTable(params,params1){
+            //console.log(params);
+            var newheaderVals={
+                type:"",
+                value:""
+            };
+            var newheaderVals1={
+                type:"",
+                name:"",
+                value:""
+            };
+            var newgetVals={
+                name:"",
+                value:""
+            };
+            if(params===0){
+                this.headerVals.push(newheaderVals);
+            }else if(params===1&&params1===0){
+                this.bodyFVals.push(newheaderVals1)
+            }else if(params===1&&params1===1){
+                this.bodyJVals.push(newheaderVals1)
+            }else if(params===1&&params1===2){
+                this.bodyXVals.push(newheaderVals1)
+            }else if(params===2){
+                this.getVals.push(newgetVals)
+            }
+
+        },
+        deleteHeader(index,params,params1){
+            var lengthHeader = this.headerVals.length;
+            var lengthBodyF = this.bodyFVals.length;
+            var lengthBodyX = this.bodyXVals.length;
+            var lengthBodyJ = this.bodyJVals.length;
+            var lengthGet = this.getVals.length;
+            if(params===0&&lengthHeader===1){
+                this.headerVals = [{
+                type: "",
+                value: ""
+            }];
+            }else if(params===1&&params1===0&& lengthBodyF===1){
+                this.bodyFVals =[{
+                type: "",
+                name: "",
+                value: ""
+            }];
+            }else if(params===1&&params1===1&& lengthBodyJ===1){
+                this.bodyJVals = [{
+                type: "",
+                name: "",
+                value: ""
+            }];
+            }else if(params===1&&params1===2&& lengthBodyX===1){
+                this.bodyXVals = [{
+                type: "",
+                name: "",
+                value: ""
+            }];
+            }else if(params===2&&lengthGet===1){
+                this.getVals =[{
+                 name: "",
+                value: ""
+            }];
+            }
+            if(params===0&&lengthHeader>1){
+                this.headerVals.splice(index, 1);
+            }else if(params===1&&params1===0&& lengthBodyF>1){
+                this.bodyFVals.splice(index, 1);
+            }else if(params===1&&params1===1&& lengthBodyJ>1){
+                this.bodyJVals.splice(index, 1);
+            }else if(params===1&&params1===2&& lengthBodyX>1){
+                this.bodyXVals.splice(index, 1);
+            }else if(params===2&&lengthGet>1){
+                this.getVals.splice(index, 1);
+            }
+        },
+        getMethod(params){
+            this.method = params
+        },
+        sendQuest() {
+            if(this.method==="" || this.url==="" || this.host==="" || this.method==="请求方式"){
+                alert("请求host,url,methods参数不能为空")
+            }else {
+                this.mulData();
+                //console.log(this.data_to_send);
+                var hreader_str = JSON.stringify(this.data_to_send["headers"]);
+                var body_str = "";
+                if (JSON.stringify(this.data_to_send["bodyinfor"]) == '{}') {
+                    body_str = ""
+                } else {
+                    for (var c = 0; c < this.data_to_send["bodyinfor"]["datas"].length; c++) {
+                        body_str = body_str + JSON.stringify(this.data_to_send["bodyinfor"]["datas"][c]);
+                    }
+                }
+                //console.log(body_str);
+                var requestStr = "请求方式：" + this.data_to_send["methods"] + "\n" + "请求地址：" + this.data_to_send["host"] + this.data_to_send["url"] + "\n" + "请求头部：" + hreader_str +
+                    "\n" + "请求参数：" + body_str;
+                this.request_infor = requestStr;
+                axios.post('/sendRequest/', this.data_to_send)
+                    .then(resp => {
+                        console.log(resp.data.data);
+                        if(resp.data.code===0){
+                            try{
+                                //var result = JSON.stringify(JSON.parse(resp.data.data) , null, 2);//将字符串转换成json对象
+                                //document.getElementById('out_pre').innerText= result;JSON.parse(resp.data.data);
+                                $('#out_pre').JSONView(JSON.parse(resp.data.data));
+                                this.assert = resp.data.assert
+                            }catch(e){
+                                var result = JSON.stringify(resp.data.data , null, 2);//将字符串转换成json对象
+                                document.getElementById('out_pre').innerText= result;
+                                this.assert = resp.data.assert
+                            }
+                        }else{
+                            alert(resp.data.msg);
+                            var result = JSON.stringify(resp.data.data , null, 2);
+                            document.getElementById('out_pre').innerText= result;
+                            this.assert = resp.data.assert
+                        }
+                    }).catch(err => {
+                    toastr.options = {
+                        closeButton: false,
+                        debug: false,
+                        progressBar: false,
+                        positionClass: "toast-top-center",
+                        onclick: null,
+                        showDuration: "300",
+                        hideDuration: "1000",
+                        timeOut: "2000",
+                        extendedTimeOut: "1000",
+                        showEasing: "swing",
+                        hideEasing: "linear",
+                        showMethod: "fadeIn",
+                        hideMethod: "fadeOut"
+                    };
+                    toastr.error("请求失败，请检查请求数据");
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                })
+            }
+        },
+        //数据整理
+        mulData(){
+            var methods = this.method;
+            var posturl = this.url;
+            var host = this.host;
+            var headerinfor = {};
+            for (var i = 0; i < this.headerVals.length; i++) {
+                var Htype = this.headerVals[i].type;
+                var Hvalue = this.headerVals[i].value;
+                if(Htype!==""&&Hvalue!==""){
+                     headerinfor[Htype] = Hvalue
+                }
+            }
+            var bodyArr = [];
+            var bodyinfor = {};
+            let bodysData = {};
+            //console.log(this.showState,this.showbodyState);
+            //console.log(this.showState);
+            //console.log(this.showbodyState);
+            if (this.showbodyState === 0 && this.bodyFVals[0].name !== "") {
+                {#headerinfor["Content-Type"] = "multipart/form-data";#}
+                bodysData["showflag"] = 0;
+                for (var j = 0; j < this.bodyFVals.length; j++) {
+                    if(this.bodyFVals[j].type==='file'){
+                        bodyinfor = {};
+                        bodyinfor["paramType"] = this.bodyFVals[j].type;
+                        bodyinfor["paramValue"]=this.$refs.file[0].files[0].name;
+                        bodyinfor["paramName"] = this.bodyFVals[j].name;
+                        this.uploadfile();
+                    }else {
+                        bodyinfor = {};
+                        bodyinfor["paramType"] = this.bodyFVals[j].type;
+                        bodyinfor["paramValue"] = this.bodyFVals[j].value;
+                        bodyinfor["paramName"] = this.bodyFVals[j].name;
+                    }
+                bodyArr.push(bodyinfor)
+                }
+                bodysData["datas"] = bodyArr;
+            }
+            else if (this.showbodyState === 1 && this.bodyJVals[0].name !== "") {
+                {#headerinfor["Content-Type"] = "application/json";#}
+                bodysData["showflag"] = 1;
+                for (var k = 0; k < this.bodyJVals.length; k++) {
+                    bodyinfor = {};
+                    bodyinfor["paramType"] = this.bodyJVals[k].type;
+                    bodyinfor["paramValue"] = this.bodyJVals[k].value;
+                    bodyinfor["paramName"] = this.bodyJVals[k].name;
+                    bodyArr.push(bodyinfor)
+                }
+                bodysData["datas"] = bodyArr;
+            }
+            else if (this.showbodyState === 2 && this.bodyXVals[0].name !== "") {
+                {#headerinfor["Content-Type"] = "application/xml";#}
+                bodysData["showflag"] = 2;
+                for (var l = 0; l < this.bodyXVals.length; l++) {
+                    bodyinfor = {};
+                    bodyinfor["paramType"] = this.bodyXVals[l].type;
+                    bodyinfor["paramValue"] = this.bodyXVals[l].value;
+                    bodyinfor["paramName"] = this.bodyXVals[l].name;
+                    bodyArr.push(bodyinfor)
+                }
+                bodysData["datas"] = bodyArr;
+            }
+            else if (this.showbodyState === 3 && this.rawValue !== "") {
+                bodysData["showflag"] = 3;
+                bodyinfor = {};
+                {#headerinfor["Content-Type"] = "text/plain";#}
+                bodyinfor["paramValue"] = this.rawValue;
+                bodyArr.push(bodyinfor);
+                bodysData["datas"] = bodyArr;
+            }else{
+                bodysData = {
+
+                };
+            }
+
+            var Screatinfor={
+                isScreat:this.isScreat,
+                Screatinfor:this.Authorization,
+                key_id:this.key_id,
+                secret_key:this.secret_key
+            };
+            this.data_to_send = {
+                methods:methods,
+                host:host,
+                url:posturl,
+                headers:headerinfor,
+                bodyinfor:bodysData,
+                assertData:this.assertData,
+                Screatinfor:Screatinfor,
+                isRediret:this.isRediret,
+            };
+        },
+        //保存用例
+        newCase(){
+             this.mulData();
+             var projectName = this.projectSelect;
+             var moduleName = this.modelSelect;
+             var caseName = this.caseName;
+             this.data_to_send["projectName"] = projectName;
+             this.data_to_send["moduleName"] = moduleName;
+             this.data_to_send["caseName"] = caseName;
+             this.data_to_send["creator"] = vm.$data.login_user;
+             console.log(this.data_to_send);
+             toastr.options = {
+                             closeButton: false,
+                             debug: false,
+                             progressBar: false,
+                             positionClass: "toast-top-center",
+                             onclick: null,
+                             showDuration: "300",
+                             hideDuration: "1000",
+                             timeOut: "2000",
+                             extendedTimeOut: "1000",
+                             showEasing: "swing",
+                             hideEasing: "linear",
+                             showMethod: "fadeIn",
+                             hideMethod: "fadeOut"
+                         };
+             if (this.initflag === false) {
+                 axios.post('/newCase/', {
+                     params: {
+                         data_to_send: this.data_to_send,
+                         flag: this.initflag,
+                     }
+                 })
+                     .then(resp => {
+                         //console.log(resp.data);
+                         if (resp.data.code === 0) {
+                             toastr.success(resp.data.msg);
+                         } else {
+                             toastr.error(resp.data.msg)
+                         }
+                     }).catch(err => {
+                     console.log('请求失败:' + err.status + ',' + err.statusText);
+                 })
+             } else {
+                 axios.post('/newCase/', {
+                     params: {
+                         apiId: this.aid,
+                         data_to_send: this.data_to_send,
+                         flag: this.initflag,
+                     }
+                 })
+                     .then(resp => {
+                         //console.log(resp.data);
+                         let code = resp.data.code;
+                         console.log(code);
+                         if (code === 0) {
+                             toastr.success("更新成功");
+                         }else{
+                             toastr.error("更新失败");
+                         }
+                     })
+                     .catch(err => {
+                         console.log('请求失败:' + err.status + ',' + err.statusText);
+                     });
+             }
+
+        },
+         //生成交易认证
+        returnAuthorization(){
+             this.mulData();
+             this.data_to_send["secret_key"] = this.secret_key;
+             this.data_to_send["key_id"] = this.key_id;
+             //console.log(this.data_to_send);
+               axios.post('/returnAuthorization/',this.data_to_send)
+             .then(resp =>{
+                 console.log(resp.data);
+                 this.Authorization = resp.data.data
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+
+        },
+        loadHeader(){
+            var headerInfor = this.headerText;
+            try {
+                //
+                var obj = JSON.parse(headerInfor);
+                this.headerVals=[];
+                for (var key in obj) {
+                    var data = {
+                        "type": key,
+                        "value": obj[key]
+                    };
+                    this.headerVals.push(data)
+                }
+            }catch(e){
+                alert("导入数据格式不正确，请检查")
+                }
+        }
+    },
+}).$mount('div')
+</script>
+{% endblock %}

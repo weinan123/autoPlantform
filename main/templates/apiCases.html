@@ -1,0 +1,864 @@
+{% extends 'newindex.html' %}
+{% block title %}<title> 测试用例集管理</title> {% endblock %}
+
+{% block content %}
+    <div id="apiCases">
+        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8" id="navSelBar">
+            <div class="col-md-2 cl-sm-2 cl-xs-2"  id="search" style="padding: 0px;margin-left: 20px;">
+                <input type="text" class="form-control" name="search" v-model="searchinfo"
+                            placeholder="请输入接口名称" @change="search()">
+            </div>
+            <label class="col-md-2 col-sm-2 col-xs-2" style="margin-top: 8px;width: auto;padding: 0px;margin-left: 2%;">选择项目：</label>
+            <div class="col-md-2 col-sm-2 col-xs-2" style="padding: 0px;">
+                <select class="form-control" v-model="projectID" @change="selectPro($event)">
+                    <option selected value="">请选择</option>
+                    <option  v-for="item in projectList" :value="item.id">{! item.projectName !}</option>
+                </select>
+            </div>
+            <label class="col-md-2 col-sm-2 col-xs-2" style="margin-top: 8px;width: auto;padding: 0px;margin-left: 2%;">选择模块：</label>
+            <div class="col-md-2 col-sm-2 col-xs-2" style="padding: 0px;">
+                <select class="form-control" v-model="moduleName" @change="selectModu($event)">
+                    <option selected value="">请选择</option>
+                    <option  v-for="item in moduleList" :value="item">{! item !}</option>
+                </select>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1" style="margin-left: 1%;">
+                <a href="/singleInterface/addapi/">
+                    <button type="button" class="btn btn-primary" style="background-color: #2372A8;">新建用例</button>
+                </a>
+            </div>
+           <label class="col-md-1 col-sm-2 col-xs-2" style="margin-top: 8px;width: auto;padding: 0px;margin-left: 2%;">环境切换：</label>
+            <div class="col-md-1 col-sm-2 col-xs-2" style="padding: 0px;">
+                <select class="form-control" v-model="environment">
+                    <option selected value="QA">QA</option>
+                    <option  value="Stage">Stage</option>
+                    <option  value="Live">Live</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8" id="tableContent">
+            <div  class="tableStyles" style="min-height: 580px;">
+                <table style="width: 100%">
+                    <thead>
+                    <tr>
+                        <th style="width: 8%">序号</th>
+                        <th style="width: 12%">接口名称</th>
+{#                        <th>标记ID</th>#}
+                        <th style="width: 13%">依赖用例</th>
+                        <th style="width: 15%">依赖数据</th>
+                        <th style="width: 12%">执行结果</th>
+                        <th style="width: 15%">执行时间</th>
+                        <th style="width: 10%">创建者</th>
+                        <th style="width: 15%">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody ref="tables" id="tableBody">
+                        <tr v-for="(info,index) in result.data">
+                            <td style="width: 8%"><label class="form-check-label">
+                                <input type="checkbox" class="selBtn" id="selBtn" v-bind:value="[info.id]" v-model="casesSel_list" @click="changeSel($event)">
+                                </label>
+                                {! index+ pageCount*(pageNum-1) +1 !}
+                                {! info.isCheck !}
+                            </td>
+                            <td style="width: 12%"> {! info.name !}</td>
+                            <td style="width: 13%">{! info.tid_apiName !}</td>
+                            <td style="width: 15%;word-break : break-all;">{! info.depend_data !}</td>
+                            <td style="width: 12%">
+                                <p v-if="info.lastrunrslt === 0">无</p>
+                                <p v-else-if="info.lastrunrslt === 1">Pass</p>
+                                <p v-else>Fail</p>
+                            </td>
+                            <td style="width: 15%">
+                                <p v-if="info.lastruntime ===  'null'">无</p>
+                                <p v-else>{! info.lastruntime !}</p>
+                            </td>
+                            <td style="width: 10%"> {! info.owing !}</td>
+                            <td style="width: 15%">
+                                <a class="iconlink" data-toggle="modal" data-target="#viewinfos" @click="viewapi(info.id)" v-if="permission_view" href="#" title="查看编辑">
+                                    <span class="glyphicon glyphicon-eye-open"></span>
+                                </a>
+                                <a class="iconlink" v-bind:href="['/singleInterface/editor/?id='+info.id]" title="单接口编辑">
+                                    <span class="glyphicon glyphicon-edit"></span>
+                                </a>
+                                <a class="iconlink" @click="runsingle(info.id)" href="#" title="执行">
+                                    <span class="glyphicon glyphicon-expand"></span>
+                                </a>
+                                <a class="iconlink" @click="delapi(result.data[index].id)" href="#" title="删除">
+                                    <span class="glyphicon glyphicon-remove-circle"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div ref="selall" style="margin: 10px;">
+                    <label class="form-check-label">
+                        <input type="checkbox" id="selAllBtn" class="selAllBtn"  v-model="isSelectAll" @click="selectAllBtn($event)">
+                    </label><span>&nbsp;全选&nbsp;</span>
+                    <button type="button" class="btn btn-default btn-sm" id="batchdel"  @click="batchdel()" v-if="permission_del">批量删除</button>
+                    <span v-if="permission_run">
+                        <span v-if="reportflag && casesSel_list.length > 0">
+                            <button type="button" class="btn btn-default btn-sm" id="batchexe" data-toggle="modal" data-target="#reportName" style="padding: 2px 6px;margin-left: 10px;margin-bottom: 2px;margin-right: 8px;">批量执行</button>
+                        </span>
+                        <span v-else>
+                            <button type="button" class="btn btn-default btn-sm" id="batchexe" @click="batchrun()" style="padding: 2px 6px;margin-left: 10px;margin-bottom: 2px;margin-right: 8px;">批量执行</button>
+                        </span>
+                    </span>
+                    <span v-if="permission_run">
+                        <label class="form-check-label">
+                            <input type="checkbox" v-model="reportflag" style="margin-top: 6px;">
+                        </label><span> 批量执行是否生成报告</span>
+                    </span>
+                </div>
+            </div>
+            <div style="margin: 0px auto;width: auto;text-align: center;" v-if="pageview">
+                <ul class="pagination">
+                    <li v-bind:class="disflag_left" style="cursor:pointer"><a @click="fristPage(pageNum)">首页</a></li>
+                    <li v-bind:class="disflag_left" style="cursor:pointer"><a @click="cutPage(pageNum)">上一页</a></li>
+                    <li><a style="background-color: #428bca;color: #FFFFFF;border-top: 1px solid #428bca;border-bottom: 1px solid #428bca;">{! pageNum !}</a></li>
+                    <li v-bind:class="disflag_right" style="cursor:pointer"><a @click="addPage(pageNum)">下一页</a></li>
+                    <li v-bind:class="disflag_right" style="cursor:pointer"><a @click="lastPage(pageNum)">末页</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal fade" id="viewinfos" tabindex="-1" role="dialog" aria-labelledby="viewinfosLabel" aria-hidden="true" style="margin-top: 0px;">
+            <div class="modal-dialog" style="width: 48%;margin: 75px auto;max-height: 600px;">
+                <div class="modal-content" id="infos">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="viewinfosLabel">
+                            用例详细信息
+                        </h4>
+                    </div>
+                    <div class="modal-body" style="font-size: 12px;">
+                         <div class="form-group form-inline">
+                             <div>
+                                 <label class="itemCSS1" style="width: 10%;text-align: right;">接口名称:</label>
+                                 <span class="itemCSS" style="width:35%;word-break:break-all;">
+                                     <input type="text" class="form-control" v-model="viewapiInfos.name" style="width: 100%"/></span>
+                                 </span>
+                                 <label class="itemCSS1" style="width: 10%;text-align: right;">method:</label>
+                                 <span class="itemCSS" style="width:10%;">
+                                     <select class="form-control" v-model="viewapiInfos.method">
+                                        <option value="POST" selected>POST</option>
+                                        <option value="GET">GET</option>
+                                     </select>
+                                 </span>
+                             </div>
+                             <div><label class="itemCSS1" style="width: 10%;text-align: right;">host:</label>
+                                 <span class="itemCSS" style="width:35%;">
+                                    <input type="text" class="form-control" v-model="viewapiInfos.host" style="width: 100%"/>
+                                 </span>
+                                 <label class="itemCSS1" style="width: 10%;text-align: right;">url:</label>
+                                 <span class="itemCSS" style="width:35%;word-break:break-all;">
+                                     <input type="text" class="form-control" v-model="viewapiInfos.url" style="width: 100%"/>
+                                 </span>
+                             </div>
+                             <div>
+                                 <label class="itemCSS1" style="width: 10%;text-align: right;">依赖用例:</label>
+                                 <span class="itemCSS" style="width:35%;">
+                                     <select class="form-control" style="width: 100%" v-model="viewapiInfos.dependCaseId_apiid">
+                                        <option selected value=0>无</option>
+                                        <option v-for="item in viewapiInfos.depend_list" :value="item.apiID">{! item.apiName !}</option>
+                                     </select>
+                                 </span>
+                                <label class="itemCSS1" style="width: 10%;text-align: right;">依赖数据:</label>
+                                <span class="itemCSS" style="width:35%;">
+                                    <input type="text" class="form-control" style="width: 100%" v-model="viewapiInfos.depend_data"/>
+                                </span>
+                             </div>
+                             <div><label class="itemCSS" style="width: 10%;text-align: right;">header:</label>
+                                 <textarea id="responseCSS" v-model="headers" placeholder='参照形式:{"a":"bb"}'></textarea>
+                                 <label class="itemCSS" style="width: 10%;text-align: right;">body:</label>
+                                 <textarea id="responseCSS" v-model="bodys" placeholder='参照形式:{"a":"bb"}'></textarea>
+                             </div>
+                             <div><label class="itemCSS" style="width: 10%;text-align: right;">assert:</label>
+                                 <textarea id="responseCSS" v-model="viewapiInfos.assert">{! viewapiInfos.assert !}</textarea>
+                                 <label class="itemCSS" style="width: 10%;text-align: right;">response:</label>
+                                 <textarea id="responseCSS" readonly>{! responseText !}</textarea>
+                             </div>
+                         </div>
+                    </div>
+                    <div class="modal-footer" style="margin-top: 0px;">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <input type="submit" value="保存" class="btn btn-primary" @click="saveAll(viewapiInfos.id)" data-dismiss="modal"/>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+        <!-- 点击批量执行时，输入报告名称弹框 -->
+        <div class="modal fade" id="reportName" tabindex="-1" role="dialog" aria-labelledby="reportNameLabel" aria-hidden="true" style="margin-top: 0px;">
+            <div class="modal-dialog" style="width: 500px;margin: 75px auto;max-height: 650px;">
+                <div class="modal-content" id="Names">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="reportNameLabel">
+                            报告名称
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                         <div class="form-group form-inline">
+                             <div><label class="itemCSS" style="width: 15%;text-align: right;">名称:</label>
+                                 <input type="text" class="form-control" name="reportName" v-model="reportName"
+                            placeholder="请输入报告名称" style="width:70%;" @keyup="this.value=this.value.replace(/\s+/g,'')">
+                                 <span v-if="!reportName" style="color: red">*</span>
+                             </div>
+                         </div>
+                    </div>
+                    <div class="modal-footer" style="margin-top: 0px;">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <input type="submit" value="执行" class="btn btn-primary" @click="batchrun()" data-dismiss="modal" :disabled="!reportName"/>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+{% endblock %}
+
+{% block vuejs %}
+    <script type="text/javascript">
+    var apilist = new Vue({
+        delimiters: ['{!', '!}'],
+        el:"#apiCases",
+        data:{
+            environment:"QA",
+            result:'',
+            dlist:[],
+            projectList:[],
+            projectID:"",
+            moduleList:[],
+            moduleName:"",
+            searchinfo : "",
+            allModules:"",
+            reportflag: true,
+            viewapiInfos: "",
+            headers: "",
+            bodys: "",
+            permission:{},
+            permission_run:false,
+            permission_del:false,
+            permission_view:true,
+            pageNum:1,
+            disflag_left:"disabled",
+            disflag_right:"",
+            pageCount: 10,
+            totalCount:0,
+            pageview: false,
+            isSelectAll: false,
+            cases_list: [],
+            casesSel_list: [],
+            current_pageCount:10,
+            responseText:"",
+            reportName:"",
+            sendData:{},
+        },
+        created() {
+            vm1.$data.currentSort = 3;
+            this.getPermission();
+        },
+        mounted(){
+            var params = this.geturlparam();
+            this.getProinfo(params);
+        },
+        methods:{
+            getPermission(){
+                axios.get('/getPermission/',{
+                    params: {
+                        username: vm1.$data.username,
+                    }
+                    })
+                    .then(resp =>{
+                        {#console.log(resp.data);#}
+                        this.permission = resp.data.permits;
+                        this.permission_run = this.permission.permission_run;
+                        this.permission_del = this.permission.permission_del;
+                        this.permission_view = this.permission.permission_view;
+                    }).catch(err=> {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                });
+            },
+            geturlparam(){
+                var argsstr = decodeURI(location.search.substr(1));
+                var param={};
+                if(argsstr !== ""){
+                    var strs = argsstr.split("&");
+                    for(var i = 0; i < strs.length; i++) {
+                         param[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+                    }
+                }
+                return param;
+            },
+            getlist(number){
+                let pagenumber = number;
+                var target = document.getElementById("tableBody");
+                var spinner1 = Spinner({top:"1"}).spin(target);
+                if(this.totalCount>0 && (this.totalCount / this.pageCount)<=this.pageNum-1 && (this.pageNum>1)){
+                    this.pageNum = this.pageNum -1;
+                    pagenumber = pagenumber -1;
+                }
+                axios.get('/apiAllCases/',{
+                    params:{
+                        searchinfo:this.searchinfo,
+                        moduleName: this.moduleName,
+                        projectID: this.projectID,
+                        pageNum: pagenumber,
+                        pageCount:this.pageCount,
+                    }
+                })
+                    .then(resp =>{
+                        console.log(resp.data);
+                        this.result = resp.data;
+                        this.cases_list = [];
+                        this.current_pageCount = resp.data.currentPageCount;
+                        for(let i=0;i<this.result.data.length;i++){
+                            let id = this.result.data[i].id;
+                            if(this.cases_list.indexOf(id) === -1){
+                                this.cases_list.push(id);
+                            }
+                        }
+                        this.totalCount = resp.data.totalCount;
+                        if ((this.totalCount / this.pageCount) > 1)
+                        {
+                            this.pageview = true;
+                        }else{
+                            this.pageview = false;
+                        }
+                        this.pageNum = pagenumber;
+                        if(this.pageNum === 1){
+                            this.disflag_left = "disabled";
+                            this.disflag_right = "";
+                        }
+                        spinner1.spin();
+                        this.selectCheck();
+                    }).catch(err=> {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                });
+            },
+            selectCheck(){
+                // 根据case行的选择设置换页之后全选的状态
+                let case_list = this.cases_list;
+                let casesSel_list = [];
+                for(let j=0;j<this.casesSel_list.length;j++){
+                    casesSel_list.push(this.casesSel_list[j][0]);
+                }
+                for(let i=0;i<case_list.length;i++){
+                    if(casesSel_list.indexOf(case_list[i]) > -1){
+                        this.dlist.push(case_list[i]);
+                    }
+                }
+                if((this.dlist.length) === this.cases_list.length){
+                    this.isSelectAll=true;
+                }else{
+                    this.isSelectAll=false;
+                }
+            },
+            getProinfo(params){
+                {#console.log("**1params**",params);#}
+                if(params["id"] === undefined){
+                    axios.get('/projectInfos/')
+                    .then(resp =>{
+                        {#console.log("**1**",resp.data.data);#}
+                        this.projectList = resp.data.data.allProjList;
+                        this.allModules = resp.data.data.allModuleList;
+                        this.getlist(1);
+                    }).catch(err=> {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                });
+                }else{
+                    axios.get('/projectInfos/',{
+                        params: {
+                                    pid: params["id"],
+                                }
+                    })
+                    .then(resp =>{
+                        console.log("**2**",resp.data.data);
+                        this.moduleList = [];
+                        this.projectList = [];
+                        this.projectList = resp.data.data.allProjList;
+                        this.allModules = resp.data.data.allModuleList;
+                        this.projectName = resp.data.data.projName;
+                        for(let i=0;i<this.projectList.length;i++){
+                            let pname = this.projectList[i]["projectName"];
+                            if(pname === this.projectName){
+                                this.projectID = this.projectList[i]["id"];
+                            }
+                        }
+                        let allModules = this.allModules;
+                        for(let q=0;q<allModules.length;q++){
+                            let pid = allModules[q]["owningListID"];
+                            if(this.projectID === pid) {
+                                this.moduleList.push(allModules[q]["moduleName"]);
+                            }
+                            {#console.log("***7***",this.moduleList);#}
+                        }
+                        this.moduleName = resp.data.data.moduName;
+                        this.getlist(1);
+                    }).catch(err=> {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                });
+                }
+
+            },
+            delapi(id) {
+                toastr.options = {
+                                 closeButton: false,
+                                 debug: false,
+                                 progressBar: false,
+                                 positionClass: "toast-top-center",
+                                 onclick: null,
+                                 showDuration: "300",
+                                 hideDuration: "1000",
+                                 timeOut: "2000",
+                                 extendedTimeOut: "1000",
+                                 showEasing: "swing",
+                                 hideEasing: "linear",
+                                 showMethod: "fadeIn",
+                                 hideMethod: "fadeOut"
+                };
+                let self = this;
+                zdconfirm("确认要删除吗？", function (r) {
+                    if (r) {
+                        {#console.log('id=' + id);#}
+                        axios.post('/apidelete/', {
+                            params: {
+                                aid: id
+                            }
+                        }).then(resp => {
+                                self.result = resp.data;
+                                let info = resp.data.info;
+                                let code = resp.data.code;
+                                if (code === 0) {
+                                    {#console.log(self);#}
+                                    toastr.success("删除成功");
+                                    self.totalCount = self.totalCount - 1;
+                                    self.getlist(self.pageNum);
+                                } else {
+                                    toastr.error("删除失败:" + info);
+                                    self.getlist(self.pageNum);
+                                }
+                            })
+                            .catch(err => {
+                                console.log('请求失败:' + err.status + ',' + err.statusText);
+                            });
+                    }
+                })
+            },
+
+            selectAllBtn(e){
+                let checked = e.target.checked;
+                if(checked){
+                    for(let i=0;i<this.cases_list.length;i++){
+                        let caseid = parseInt(this.cases_list[i]);
+                        let inflag = false;
+                        for(let j=0;j<this.casesSel_list.length;j++){
+                            if(this.casesSel_list[j].indexOf(caseid) > -1){
+                                inflag = true;
+                                break;
+                            }
+                        }
+                        if(inflag === false){
+                            this.casesSel_list.push([caseid]);
+                        }
+                        if(this.dlist.indexOf(caseid) === -1){
+                            this.dlist.push(caseid);
+                        }
+                    }
+                }else{
+                    this.dlist = [];
+                    for(let i=0;i<this.cases_list.length;i++){
+                        let caseid = parseInt(this.cases_list[i]);
+                        for(let j=0;j<this.casesSel_list.length;j++){
+                            if(this.casesSel_list[j].indexOf(caseid) > -1){
+                                this.casesSel_list.splice(j, 1);
+                                break;
+                            }
+                        }
+                    }
+                }
+            },
+            changeSel(e){
+                let chev = e.target.checked;
+                let id = parseInt(e.target.value);
+                if(chev === true) {
+                    if(this.dlist.indexOf(id) === -1) {
+                        this.dlist.push(id);
+                    }
+                 } else {
+                    let index = this.dlist.indexOf(id);
+                        if (index > -1) {
+                            this.dlist.splice(index, 1);
+                        }
+                 }
+                if((this.dlist.length) === this.cases_list.length){
+                    this.isSelectAll=true;
+                }else{
+                    this.isSelectAll=false;
+                }
+            },
+            batchdel(){
+                toastr.options = {
+                                 closeButton: false,
+                                 debug: false,
+                                 progressBar: false,
+                                 positionClass: "toast-top-center",
+                                 onclick: null,
+                                 showDuration: "300",
+                                 hideDuration: "1000",
+                                 timeOut: "2000",
+                                 extendedTimeOut: "1000",
+                                 showEasing: "swing",
+                                 hideEasing: "linear",
+                                 showMethod: "fadeIn",
+                                 hideMethod: "fadeOut"
+                };
+                let dellist = [];
+                let self = this;
+                for(let j=0;j<self.casesSel_list.length;j++){
+                    dellist.push(self.casesSel_list[j][0]);
+                }
+                if (dellist.length !== 0) {
+                    zdconfirm("删除之后无法恢复，确认要删除？", function (r) {
+                        if (r) {
+                            axios.post('/batchdel/', {
+                                params: {
+                                    idList: dellist,
+                                },
+                            })
+                                .then(resp => {
+                                    {#console.log(resp.data);#}
+                                    let code = resp.data.code;
+                                    let info = resp.data.info;
+                                    if (code === 0) {
+                                        alert("删除结果：" + info);
+                                        self.totalCount = self.totalCount - resp.data.successNum;
+                                        self.casesSel_list = [];
+                                        self.dlist = [];
+                                        self.getlist(self.pageNum);
+                                    } else {
+                                        toastr.error("删除失败");
+                                        self.getlist(self.pageNum);
+                                    }
+                                })
+                                .catch(err => {
+                                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                                })
+                        }
+                    });
+                }else{
+                    alert("请先选择用例")
+                }
+            },
+            runsingle(id){
+                {#console.log(id);#}
+                var target = document.getElementById("tableBody");
+                var spinner1 = Spinner({top:"1"}).spin(target);
+                let datas = this.result.data;
+                {#console.log(datas);#}
+                let method = "";
+                let url = "";
+                let environment = this.environment;
+                console.log(environment);
+                for(let d=0;d<datas.length;d++) {
+                    let did = datas[d].id;
+                    if (id === did) {
+                        method = datas[d].method;
+                        url = datas[d].url;
+                        {#console.log(method, url);#}
+                        break;
+                    }
+                }
+                if (method !== "" && url !== "" && method !== undefined && url !== undefined) {
+                    axios.post('/runsingle/', {
+                        params: {
+                            id: id,
+                            environment:environment
+                        },
+                    })
+                        .then(resp => {
+                            {#console.log(resp.data);#}
+                            let code = resp.data.code;
+                            let datas = resp.data.datas;
+                             toastr.options = {
+                                         closeButton: false,
+                                         debug: false,
+                                         progressBar: false,
+                                         positionClass: "toast-top-center",
+                                         onclick: null,
+                                         showDuration: "300",
+                                         hideDuration: "1000",
+                                         timeOut: "2000",
+                                         extendedTimeOut: "1000",
+                                         showEasing: "swing",
+                                         hideEasing: "linear",
+                                         showMethod: "fadeIn",
+                                         hideMethod: "fadeOut"
+                                     };
+                            if (code === 0) {
+                                 toastr.success("执行成功");
+                            } else {
+                                toastr.error("执行失败");
+                                //alert("执行失败: " + datas);
+                            }
+                            this.getlist(this.pageNum);
+                            spinner1.spin();
+                        })
+                        .catch(err => {
+                            console.log('请求失败:' + err.status + ',' + err.statusText);
+                        })
+                } else {
+                    alert("请先编辑接口相关参数。");
+                }
+            },
+            batchrun(){
+                let runlist = [];
+                let self = this;
+                 let environment = this.environment;
+                for(let j=0;j<self.casesSel_list.length;j++){
+                    runlist.push(self.casesSel_list[j][0]);
+                }
+                {#console.log("runlist",runlist);#}
+                if (runlist.length !== 0) {
+                    zdconfirm("是否开始执行？", function (r) {
+                        if (r) {
+                            axios.post('/batchrun/', {
+                                params: {
+                                    environment:environment,
+                                    idList: runlist,
+                                    pmName: self.reportName,
+                                    reportflag: self.reportflag,
+                                },
+                            })
+                                .then(resp => {
+                                    {#console.log(resp.data);#}
+                                    let code = resp.data.code;
+                                    let info = resp.data.info;
+                                    toastr.options = {
+                                            closeButton: false,
+                                            debug: false,
+                                            progressBar: false,
+                                            positionClass: "toast-top-center",
+                                            onclick: null,
+                                            showDuration: "300",
+                                            hideDuration: "1000",
+                                            timeOut: "2000",
+                                            extendedTimeOut: "1000",
+                                            showEasing: "swing",
+                                            hideEasing: "linear",
+                                            showMethod: "fadeIn",
+                                            hideMethod: "fadeOut"
+                                        };
+                                    if (code === 0) {
+                                        toastr.success(info);
+                                        self.getlist(self.pageNum);
+                                    } else {
+                                        alert("执行失败:" + info);
+                                    }
+                                })
+                                .catch(err => {
+                                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                                })
+                        }
+                    });
+                }else{
+                    alert("请先选择用例");
+                }
+            },
+            search(){
+                this.getlist(1);
+            },
+            selectPro(e){
+                let selProj = e.target.value;
+                {#console.log("****2****", selProj);#}
+                let allModules = this.allModules;
+                if(this.moduleList.length!==0){
+                    this.moduleList = [];
+                    this.moduleName = "";
+                }
+                for(let q=0;q<allModules.length;q++){
+                    let pid = allModules[q]["owningListID"];
+                    console.log("****3****", pid);
+                    if(selProj.toString()===pid.toString()) {
+                        if(allModules[q]["moduleName"] !== ""){
+                            this.moduleList.push(allModules[q]["moduleName"]);
+                        }
+
+                    }
+                }
+                this.getlist(1);
+            },
+            selectModu(e){
+                let selModu = e.target.value;
+                let selProj = this.projectName;
+                {#console.log(selModu,selProj);#}
+                this.getlist(1);
+            },
+            viewapi(id){
+                var target = document.getElementById("infos");
+                var spinner1 = Spinner({top:"2",left:"4"}).spin(target);
+                this.viewapiInfos = "";
+                this.headers = "";
+                this.bodys = "";
+                this.responseText = "";
+                axios.get('/viewapiInfos/', {
+                    params: {
+                        apiid: id,
+                        environment: this.environment,
+                    },
+                    })
+                    .then(resp => {
+                        spinner1.spin();
+                        this.viewapiInfos = resp.data.datas;
+                        let viewHeaders = resp.data.datas.header;
+                        let viewBodys = resp.data.datas.body;
+                        let showflag = parseInt(resp.data.showbody);
+                        this.headers = "";
+                        let header_data={};
+                        if(viewHeaders.length > 0){
+                            for(let i=0;i<viewHeaders.length;i++){
+                                header_data[viewHeaders[i]["type"]] = viewHeaders[i]["value"];
+                            }
+                        }
+                        this.headers = JSON.stringify(header_data);
+                        this.bodys = "";
+                        let body_data={};
+                        if(viewBodys.length > 0){
+                            if(showflag === 3){
+                                this.bodys = viewBodys[0].value;
+                            }else{
+                                for(let i=0;i<viewBodys.length;i++){
+                                    body_data[viewBodys[i]["name"]] = viewBodys[i].value;
+                                }
+                                this.bodys = JSON.stringify(body_data);
+                            }
+                        }else{
+                            this.bodys = JSON.stringify(body_data);
+                        }
+                        {#console.log("header:", this.headers);#}
+                        {#console.log("body:", this.bodys);#}
+                        try{
+                            this.responseText = JSON.parse(resp.data.datas.response);
+                        }catch(e){
+                            this.responseText = resp.data.datas.response;
+                        }
+
+                    }).catch(err => {
+                        console.log('请求失败:' + err.status + ',' + err.statusText);
+                    })
+            },
+            addPage(num){
+                this.pageNum = num +1;
+                if(this.pageNum > 1){
+                    this.disflag_left = "";
+                }
+                let totalNums = this.totalCount / this.pageCount;
+                if(this.pageNum >= totalNums){
+                    this.disflag_right = "disabled";
+                }
+                this.result = "";
+                this.dlist = [];
+                this.getlist(this.pageNum);
+            },
+            cutPage(num){
+                this.pageNum = num -1;
+                if(this.pageNum === 1){
+                    this.disflag_left = "disabled";
+                }
+                let totalNums = this.totalCount / this.pageCount;
+                if(this.pageNum < totalNums){
+                    this.disflag_right = "";
+                }
+                this.result = "";
+                this.dlist = [];
+                this.getlist(this.pageNum);
+            },
+            fristPage(num){
+                this.pageNum = 1;
+                this.disflag_left = "disabled";
+                let totalNums = this.totalCount / this.pageCount;
+                this.disflag_right = "";
+                this.result = "";
+                this.dlist = [];
+                this.getlist(this.pageNum);
+            },
+            lastPage(num){
+                let totalNums = Math.ceil(this.totalCount / this.pageCount);
+                this.pageNum = totalNums;
+                this.disflag_left = "";
+                this.disflag_right = "disabled";
+                this.result = "";
+                this.dlist = [];
+                this.getlist(this.pageNum);
+            },
+            saveAll(id){
+                toastr.options = {
+                                    closeButton: false,
+                                    debug: false,
+                                    progressBar: false,
+                                    positionClass: "toast-top-center",
+                                    onclick: null,
+                                    showDuration: "300",
+                                    hideDuration: "1000",
+                                    timeOut: "2000",
+                                    extendedTimeOut: "1000",
+                                    showEasing: "swing",
+                                    hideEasing: "linear",
+                                    showMethod: "fadeIn",
+                                    hideMethod: "fadeOut"
+                };
+                var dependdata = this.viewapiInfos.depend_data;
+                if(dependdata === null){
+                    dependdata = ""
+                }
+                var pattern = new RegExp("[`~!@#^&*()|{}':;'<>/?~！@#￥……*（）——|{}【】‘；：”“'。，、？]", 'g');
+                var rs = dependdata.replace(pattern, '');
+                if(rs.length === dependdata.length) {
+                    this.getSendData();
+                    {#console.log("sendData: ", this.sendData);#}
+                    axios.post('/saveOrUpdateData/', {
+                        params: {
+                            apiid: id,
+                            sendData: this.sendData,
+                        },
+                    })
+                        .then(resp => {
+                            var code = resp.data.code;
+                            var info = resp.data.info;
+                            console.log("222resp:", resp.data);
+                            if (code === 0) {
+                                toastr.success("更新成功");
+                                this.getlist(this.pageNum);
+                            } else {
+                                alert("更新失败：" + info);
+                                this.getlist(this.pageNum);
+                            }
+                        })
+                        .catch(err => {
+                            console.log('请求失败:' + err.status + ',' + err.statusText);
+                        })
+                }else{
+                    alert("依赖参数不能包含特殊字符：[`~!@#^&*()|{}':;'<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]");
+                }
+            },
+            getSendData(){
+                this.sendData = {
+                    "apiName":this.viewapiInfos.name,
+                    "method":this.viewapiInfos.method,
+                    "host":this.viewapiInfos.host,
+                    "url":this.viewapiInfos.url,
+                    "dependcase_apiID":this.viewapiInfos.dependCaseId_apiid,
+                    "dependData":this.viewapiInfos.depend_data,
+                    "header":this.headers,
+                    "bodys":this.bodys,
+                    "assert":this.viewapiInfos.assert,
+                    "environment":this.environment,
+                    "user":vm1.$data.username,
+                };
+            },
+        }
+    }).$mount('#apiCases');
+    </script>
+{% endblock %}

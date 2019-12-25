@@ -1,0 +1,170 @@
+.customButton {
+    background-color: #428bca;
+    color: white;
+    font-size: 40px;
+    width: 300px;
+    height: 180px;
+    margin: 20px;
+}
+
+.createProjectButton {
+    background-color: grey;
+    color: lightgrey;
+    font-size: 40px;
+    width: 100%;
+    height: 102px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.buttonGroup {
+    background: #deeaf2;
+    border-radius: 3px;
+}
+
+.deleteButton {
+    float: right;
+    background: #deeaf2;
+    font-size: 14px;
+    color: #2372A8;
+    letter-spacing: 0;
+    background-image: -webkit-linear-gradient(top, #deeaf2 0%, #deeaf2 0%);
+    border-style: none;
+    height: 36px;
+    width: 66px;
+    border-radius: 0px 3px 3px 0px;
+}
+
+.viewButton {
+    background: #deeaf2;
+    font-size: 14px;
+    color: #FFFFFF;
+    letter-spacing: 0;
+    background-image: -webkit-linear-gradient(top, #2372A8 0%, #2372A8 0%);
+    border-style: none;
+    height: 36px;
+    width: 66px;
+    border-radius: 3px;
+}
+
+.firstDeleteButton {
+    float: right;
+    background: #deeaf2;
+    font-size: 14px;
+    color: #2372A8;
+    letter-spacing: 0;
+    background-image: -webkit-linear-gradient(top, #deeaf2 0%, #deeaf2 0%);
+    border-style: none;
+    height: 36px;
+    width: 30%;
+    border-radius: 3px;
+}
+
+.firstViewButton {
+    background: #deeaf2;
+    font-size: 14px;
+    color: #FFFFFF;
+    letter-spacing: 0;
+    background-image: -webkit-linear-gradient(top, #2372A8 0%, #2372A8 0%);
+    border-style: none;
+    height: 36px;
+    width: 60%;
+    border-radius: 3px;
+}
+
+.projectnamesel {
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    font-size: 16px;
+    font-weight: bold;
+    color: #2372A8;
+    letter-spacing: 0;
+}
+
+.projectCss {
+    margin-left: 46px;
+    float: left;
+    margin-top: 10px
+}
+
+.mouduleCss {
+    margin-left: 62px;
+    float: left;
+    margin-top: 10px
+}
+
+.addButton {
+    background-color: white;
+    color: #e1e7eb;
+    border-radius: 3px;
+    text-align: center;
+    padding: 3px;
+    border-style: none;
+    width: 100%;
+    height: 100%;
+}
+
+.pagetitle {
+    background-color: #FFFFFF;
+    margin-top: 37px;
+    padding-left: 37px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: #2372A8;
+    font-family: PingFangSC-Semibold;
+    font-weight: bold;
+    letter-spacing: 0;
+    font-size: 24px;
+}
+
+body {
+    background-color: #f7f7f7;
+}
+
+.formContent {
+    height: 100%;
+}
+
+.form-horizontal .control-label {
+    text-align: left;
+}
+
+.downloadButton {
+    background: #deeaf2;
+    font-size: 14px;
+    color: #FFFFFF;
+    letter-spacing: 0;
+    background-image: -webkit-linear-gradient(top, #2372A8 0%, #2372A8 0%);
+    border-style: none;
+    height: 36px;
+    width: 86px;
+    border-radius: 3px;
+}
+
+.iconlink {
+    color: rgba(99, 98, 98, 0.75) !important;
+    margin: 6px;
+}
+
+.iconlink:link {
+    color: rgba(99, 98, 98, 0.75) !important;
+    text-decoration: none;
+}
+
+.iconlink:visited {
+    color: rgba(99, 98, 98, 0.75) !important;
+    text-decoration: line-through;
+}
+
+.iconlink:hover {
+    color: #2372A8 !important;
+    text-decoration: underline;
+}
+
+.iconlink:active {
+    color: #2372A8 !important;
+}
+
+
+

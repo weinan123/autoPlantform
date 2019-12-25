@@ -1,0 +1,385 @@
+{% extends 'newindex.html' %}
+{% block script %}
+    <link href="/static/css/myindex.css" rel="stylesheet">
+{% endblock %}
+{% block title %}<title> 权限控制</title> {% endblock %}
+{% block content %}
+    <div class="content" id ="userpermit">
+    <div class="pageheader">
+        <p class="titlecss">用户权限管理</p>
+        <button type="submit" class="btn-save" style="margin-left: 52%;margin-top: 5px;" @click="saveData()">保存</button>
+    </div>
+
+
+   <div class="formContent">
+       <div style="padding-left: 37px;padding-top: 37px;width: 95%">
+  <table class="table table-bordered">
+  <thead>
+    <tr>
+      <th style="width: 5%" >编号</th>
+      <th style="width: 10%" >姓名</th>
+      <th style="width: 10%">职位</th>
+      <th style="width: 10%">职位等级</th>
+      <th style="width: 10%">所属小组</th>
+      <th style="width: 25%">批量操作权限</th>
+      <th style="width: 15%">全局配置权限</th>
+      <th style="width: 15%">操作</th>
+    </tr>
+  </thead>
+  <tbody id="row" >
+    <tr v-for="user,index in userList">
+      <td >{!index+1+count!}</td>
+      <td >{! user.username !}</td>
+      <td>{! user.department !}</td>
+      <td>{! user.depart_name !}</td>
+        <td>{! user.group !}</td>
+        <td>
+             <div style="width: 33%;float: left;">
+            <input  type="checkbox" :value="user.batch_check" id="isTeam" :checked="user.batch_check" @click="changePetmit(index,$event,'check')" >
+             <span >查看</span>
+             </div>
+            <div style="width: 33%;float: left;">
+            <input  type="checkbox" value="1" id="isTeam"  :checked="user.batch_del" @click="changePetmit(index,$event,'del')" >
+             <span >删除</span>
+            </div>
+            <div style="width: 33%;float: left;">
+            <input  type="checkbox" value="1" id="isTeam" :checked="user.batch_run" @click="changePetmit(index,$event,'run')" >
+             <span >执行</span>
+             </div>
+        </td>
+      <td>
+          {% comment %}<template v-if="user.configer_permit==false">{% endcomment %}
+          <div style="width: 50%;float: left;">
+            <input  type="checkbox" value="true" id="isTeam" :checked=user.config_true @click="changePetmit(index,$event,'configtrue')" >
+             <span >有</span>
+             </div>
+            <div style="width: 50%;float: left;">
+            <input  type="checkbox" value="false" id="isTeam" :checked=user.config_false @click="changePetmit(index,$event,'configfalse')" >
+             <span >无</span>
+            </div>
+         {% comment %} </template>
+          <template v-if="user.configer_permit==true">
+          <div style="width: 50%;float: left;">
+            <input  type="checkbox" value="true1" id="isTeam" :checked=true @click="changePetmit(index,$event,'config')">
+             <span >有</span>
+             </div>
+            <div style="width: 50%;float: left;">
+            <input  type="checkbox" value="false1" id="isTeam" :checked=false @click="changePetmit(index,$event,'config')">
+             <span >无</span>
+            </div>
+          </template>{% endcomment %}
+      </td>
+        <td >
+            <button  class="btn-local" type="submit" class="btn  btn-sm" data-toggle="modal" data-target="#edituser" @click="editUser(index,user)" >编辑</button>
+          <button class="btn-delete" type="submit" class="btn btn-sm" @click="delUser(index,user.id)" >删除</button>
+
+        </td>
+    </tr>
+  </tbody>
+</table>
+       </div>
+
+   </div>
+        <div id="example" style="text-align: center">
+            <ul id="pageLimit">
+            </ul>
+            </div>
+   <div class="modal fade" id="edituser" tabindex="-1" role="dialog" aria-labelledby="newapiLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 450px;margin: 75px auto">
+                    <div class="modal-content" id="newinfo">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="newapiLabel">
+                                编辑用户
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <form role="form" class="form-horizontal">
+                            <div class="form-group">
+                               <label  for="version" class="col-sm-3">用户名</label>
+                               <div class="col-sm-7">
+                               <span  class="form-control" >{!editusername!}
+                               </span>
+                               </div>
+                                <div class="col-sm-2"></div>
+                            </div>
+
+                            <div class="form-group">
+                               <label  for="version" class="col-sm-3">职位:</label>
+                               <div class="col-sm-7">
+                               <select  class="form-control" name="selectPrior" v-model="department" >
+                                   <option value=null selected >请选择</option>
+                                   <option value="测试工程师" >测试工程师</option>
+                                   <option value="开发工程师">开发工程师</option>
+
+                               </select>
+                               </div>
+                                <div class="col-sm-2"></div>
+                            </div>
+                            <div class="form-group">
+                               <label  for="version" class="col-sm-3">职位等级:</label>
+                               <div class="col-sm-7">
+                               <select class="form-control" name="selectPrior" v-model="depart_level">
+                                   <option value=null >请选择</option>
+                                 <option value="超级管理员" >超级管理员</option>
+                                 <option value="组长" >组长</option>
+                                 <option value="组员">组员</option>
+
+                               </select>
+                               <div class="col-sm-2"></div>
+                            </div>
+                            </div>
+                                <div class="form-group">
+                               <label  for="version" class="col-sm-3">所属小组:</label>
+                               <div class="col-sm-7">
+                               <select class="form-control" name="selectPrior" v-model="group">
+                                 <option value=null selected>请选择</option>
+                                 <option value="有鱼股票" >有鱼股票</option>
+                                 <option value="有鱼智投" >有鱼智投</option>
+                                 <option value="产品网站" >产品网站</option>
+                                  <option value="有鱼持股" >有鱼持股</option>
+                                 <option value="云锋保险" >云锋保险</option>
+                               </select>
+                               </div>
+                               <div class="col-sm-2"></div>
+                            </div>
+                        </form>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                            <button type="submit" class="btn btn-primary" @click="userchange(userid)" data-dismiss="modal">确定</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+</div>
+    </div>
+{% endblock %}
+{% block vuejs%}
+<script type="text/javascript">
+var vm = new Vue({
+delimiters: ['{!', '!}'],
+el:'#userpermit',
+data:function(){
+    return{
+        userList:[],
+        editusername: "wrwerwrwre",
+        department:"请选择",
+        depart_level:"请选择",
+        group:"请选择",
+        userid:"",
+        page_num:"",
+        username:vm1.$data.username,
+        count:0,
+        currentPage:1
+    }
+},
+created(){
+    vm1.$data.currentSort = 5;
+
+},
+mounted:function() {
+    this.getUserData(1,14);
+    this.getPageNum(this.username);
+},
+methods:{
+     showPaginator(username){
+            let self = this;
+            $('#pageLimit').bootstrapPaginator({
+            currentPage: 1,//当前的请求页面。
+            totalPages: this.page_num,//一共多少页。
+            size:"normal",//应该是页眉的大小。
+            bootstrapMajorVersion: 3,//bootstrap的版本要求。
+            alignment:"right",
+            numberOfPages:5,//一页列出多少数据。
+            itemTexts: function (type, page, current) {//如下的代码是将页眉显示的中文显示我们自定义的中文。
+                switch (type) {
+                case "first": return "首页";
+                case "prev": return "上一页";
+                case "next": return "下一页";
+                case "last": return "末页";
+                case "page": return page;
+                }
+            },
+             onPageClicked: function (event, originalEvent, type, page){
+                 var target = document.getElementById("row");
+                 var spinner = Spinner({top:'1'}).spin(target);
+                axios.get('/getUserData/',{params:{ username:username,page:page,count:14}})
+             .then(resp =>{
+                 spinner.spin();
+                 for(var i=0;i<resp.data.datas.length;i++){
+                     if(resp.data.datas[i].configer_permit===false){
+                         resp.data.datas[i].config_true=false;
+                         resp.data.datas[i].config_false=true
+                     }else if(resp.data.datas[i].configer_permit===true){
+                          resp.data.datas[i].config_true=true;
+                         resp.data.datas[i].config_false=false
+                     }
+                 }
+                 //console.log(resp.data.datas);
+                 self.count =(page-1)*14;
+                 this.userList=[];
+                 self.userList=resp.data.datas;
+                 self.currentPage = page;
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+             }
+        });
+     },
+     getPageNum(username){
+         vm1.$mount();
+         data_to_send = {
+             username:username
+         };
+           axios.post('/getUserData/',data_to_send)
+             .then(resp =>{
+                 //console.log(resp.data);
+                 this.page_num = resp.data.page_num;
+                 this.showPaginator(username)
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+     },
+     getUserData(page,count){
+         //var target = document.getElementById("row");
+         //var spinner = Spinner({top:'1'}).spin(target);
+         let username = vm1.$data.username;
+         axios.get('/getUserData/',{params:{  username:username,page:page,count:count}})
+             .then(resp =>{
+                 for(var i=0;i<resp.data.datas.length;i++){
+                     if(resp.data.datas[i].configer_permit===false){
+                         resp.data.datas[i].config_true=false;
+                         resp.data.datas[i].config_false=true
+                     }else if(resp.data.datas[i].configer_permit===true){
+                          resp.data.datas[i].config_true=true;
+                         resp.data.datas[i].config_false=false
+                     }
+                 }
+                 //console.log(resp.data.datas);
+                 this.userList=resp.data.datas;
+                 //spinner.spin();
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+    },
+     delUser(index,params){
+         if(this.username===this.userList[index].username){
+             alert("不能删除本人")
+         }else {
+             let self = this;
+             zdconfirm("确认要删除吗？", function (r) {
+                 if (r) {
+                     axios.post('/delUserData/', {params: {id: params}})
+                         .then(resp => {
+                             toastr.options = {
+                                 closeButton: false,
+                                 debug: false,
+                                 progressBar: false,
+                                 positionClass: "toast-top-center",
+                                 onclick: null,
+                                 showDuration: "300",
+                                 hideDuration: "1000",
+                                 timeOut: "2000",
+                                 extendedTimeOut: "1000",
+                                 showEasing: "swing",
+                                 hideEasing: "linear",
+                                 showMethod: "fadeIn",
+                                 hideMethod: "fadeOut"
+                             };
+                             //console.log(resp.data);
+                             toastr.success("删除成功");
+                             self.getUserData(self.currentPage, 14);
+
+
+                         }).catch(err => {
+                         console.log('请求失败:' + err.status + ',' + err.statusText);
+                     })
+                 }
+             })
+         }
+     },
+     saveData(){
+         //console.log(this.userList);
+         data_to_send = {
+             userdatas:this.userList
+         };
+         var target = document.getElementById("row");
+         var spinner = Spinner({top:'1'}).spin(target);
+         axios.post('/saveUserData/',data_to_send)
+             .then(resp =>{
+                 //console.log(resp.data);
+                 toastr.options = {
+                             closeButton: false,
+                             debug: false,
+                             progressBar: false,
+                             positionClass: "toast-top-center",
+                             onclick: null,
+                             showDuration: "300",
+                             hideDuration: "1000",
+                             timeOut: "2000",
+                             extendedTimeOut: "1000",
+                             showEasing: "swing",
+                             hideEasing: "linear",
+                             showMethod: "fadeIn",
+                             hideMethod: "fadeOut"
+                         };
+                 if(resp.data.code==0) {
+                     spinner.spin();
+                     vm1.$mount();
+                     //window.location.reload(true);
+                     toastr.success(resp.data.info);
+                     this.getUserData(self.currentPage,14);
+                     //this.getPageNum(this.username);
+
+                 }else{
+                    toastr.error(resp.data.info);
+                 }
+                 //window.location.reload(true);
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+
+     },
+     changePetmit(params,e,type){
+         //console.log(params,e.target.value,type);
+         if (type==='check'){
+             this.userList[params].batch_check=e.target.checked;
+         }else if(type==='del'){
+             this.userList[params].batch_del=e.target.checked;
+        }else if(type==='run'){
+             this.userList[params].batch_run=e.target.checked;
+         }else if(type==='configtrue' ){
+              this.userList[params].config_true=e.target.checked;
+              this.userList[params].config_false=false;
+              this.userList[params].configer_permit=true
+         }else if(type==='configfalse' ){
+              this.userList[params].config_false=e.target.checked;
+              this.userList[params].config_true=false;
+              this.userList[params].configer_permit=false
+         }
+         //console.log(this.userList);
+    },
+     editUser(index,params){
+         //console.log(params);
+         this.editusername=params.username;
+         this.department = params.department;
+         this.depart_level= params.depart_name;
+         this.group = params.group;
+         this.userid = index
+    },
+    userchange(userid){
+         this.userList[userid].department = this.department;
+         this.userList[userid].depart_name = this.depart_level;
+         this.userList[userid].group = this.group;
+    }
+
+}
+}).$mount('#userpermit');
+</script>
+{% endblock %}
+
+
+

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/css/login.css" rel="stylesheet">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="/static/js/vue.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script src="/static/js/axios.js"></script>
+</head>
+<body >
+<div  class="logincontent" style="background: url(../static/image/login1.png) no-repeat center;background-size: 100%;">
+<div class="logindiv" id="login">
+<div class="logintitle"><p>自动化接口平台</p></div>
+    <div class="login_control">
+        <div class="input_control">
+             <label style="color: white;float: left;width: 20%;text-align: left" >登录名:</label>
+             <input type="text" class="form-control" name="username" v-model="username"
+                placeholder="请输入用户名">
+        </div>
+    <div class="input_control">
+        <label style="color: white;float: left;width: 20%;text-align: left" >密码:</label>
+         <input type="password" class="form-control"  name="password" v-model="password"
+            placeholder="请输入密码">
+    </div>
+
+        <div class="input_control">
+            <button class="login_btn" @click="login()"><p style="margin-top: 8px">登录</p></button>
+             <p style="color: red;margin-left: -15%">{! login_error !}  </p>
+        </div>
+</div>
+{% comment %}<div id="app2">
+<div class="col-md-4" style="width: 33%"></div>
+<div class=" col-md-4  panel panel-default" style="margin-top: 150px;width: 33%" >
+    <div class="panel-body">
+        <form class="form-horizontal" role="form">
+        {% csrf_token %}
+           <div class="form-group">
+               <h3 style="text-align: center">登录</h3>
+             <label class="col-sm-3">登录名:</label>
+              <div class="col-sm-7 col">
+
+                 <input type="text" class="form-control" name="username" v-model="username"
+                    placeholder="请输入用户名">
+              </div>
+           </div>
+           <div class="form-group">
+              <label  class="col-sm-3 ">密码</label>
+              <div class="col-sm-7">
+                 <input type="password" class="form-control" name="password" v-model="password"
+                    placeholder="请输入密码">
+              </div>
+           </div>
+           <div class="form-group">
+               <div class="col-sm-3"></div>
+              <div class="col-sm-offset-2 col-sm-4">
+                 <button @click="login()" type="button" class="btn btn-primary">登录</button>
+                  <p style="color: red">{! login_error !}</p>
+              </div>
+           </div>
+        </form>
+    </div>
+</div>
+<div class="col-md-4"></div>
+</div>{% endcomment %}
+</div>
+</div>
+<script type="text/javascript">
+var vm0 = new Vue({
+    delimiters: ['{!', '!}'],
+    el:'#login',
+    data:function(){
+        return{
+        username :"",
+        password:"",
+        login_error:""
+        };
+
+    },
+    create(){
+        //vm.$data.status="fail"
+    },
+    methods:{
+        //赋值username
+        getUsername(){
+            var usename = this.getCookie("usename");
+            console.log(usename);
+            if (usename===""){
+                this.status = "";
+                this.login_user = "";
+            }else{
+                this.status="success";
+                this.login_user = usename;
+                //window.location.href="/index/";
+            }
+            console.log(this.status);
+        },
+        //设置cookie
+        getCookie(cname){
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            console.log(ca);
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                console.log(c);
+                var key = c.split("=")[0];
+                if(cname===key){
+                    let cookie_value = c.split("=")[1];
+                    return cookie_value
+                }
+            }
+        return "";
+      },
+        setCookie(cname, cvalue,exdays) {
+                let path = '/';
+                console.info(cname + "=" + cvalue );
+                var d = new Date();
+                d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                var expires = "expires=" + d.toUTCString();
+                document.cookie = cname + "=" + cvalue+";"+ expires+"; path="+path;
+                //document.cookie = cname + "=" + cvalue+";"+ expires;
+                console.info(document.cookie);
+            },
+        login(){
+            data_to_send = {
+                username: this.username,
+                password:this.password,
+            };
+            axios.post('/login/',data_to_send)
+                .then(resp =>{
+                        if (resp.data.status==="success"){
+                            this.setCookie("usename","",0);
+                            this.setCookie("usename",this.username,0.1);
+                            console.log(resp.data);
+                            window.location.href="/index/";
+
+                        }else{
+                            console.log(resp.data);
+                            this.login_error = resp.data.message;
+                        }
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+        }
+    }
+})
+</script>
+</body>
+</html>
+
+

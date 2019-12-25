@@ -1,0 +1,431 @@
+{% extends 'newindex.html' %}
+{% block title %}<title> 接口配置</title> {% endblock %}
+{% block script %}
+<link href="/static/css/configer.css" rel="stylesheet">
+<link href="/static/css/myindex.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+<div class="content" id ="configer">
+    <div class="pageheader">
+        <p class="titlecss">接口信息配置</p>
+        {% comment %}<div style="padding-right: 30px;padding-top:5px;float: right"  >
+          <button type="submit" class="btnsave" @click="saveData()">保存</button>
+        </div>{% endcomment %}
+    </div>
+    <div class="formContent" style="height: 100%">
+    <div class="form-horizontal" role="form" style="padding-left:50px;padding-top: 50px">
+        <div class="form-group">
+            <span class="leftlable">环境切换:</span>
+            <div class="rightform">
+                <select class="form-control" v-model="eviorment">
+                    <option value=null >请选择</option>
+                  <option value="QA" >QA</option>
+                  <option value="Stage">Stage</option>
+                  <option value="Live">Live</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group form-inline">
+            <span class="leftlable">是否生成报告:</span>
+            <div class="rightform">
+                <div class="radio" style="width: 48%">
+                    <label>
+                        <input type="radio" name="optionsRadios1" id="optionsRadios3" v-model="reportY"  value="reportY" checked @click="isSend($event)">是
+                    </label>
+                </div>
+
+                <div class="radio" style="width: 48%">
+                    <label>
+                    <input type="radio" name="optionsRadios1"  id="optionsRadios4" v-model="reportN"  value="reportN" @click="isSend($event)" >否
+                    </label>
+                </div>
+        </div>
+        </div>
+        <div class="form-group form-inline">
+        <span for="lastname" class="leftlable ">是否发送邮件</span>
+        <div class="rightform">
+            <div class="radio" style="width: 48%">
+                <label>
+                    <input type="radio" name="optionsRadios2" id="optionsRadios5" v-model="mailY" value="mailY" checked @click="isSend($event)">是
+                </label>
+            </div>
+            <div class="radio" style="width: 48%">
+                <label>
+                    <input type="radio" name="optionsRadios2" id="optionsRadios6" v-model="mailN"  value="mailN" @click="isSend($event)">否
+                </label>
+            </div>
+        </div>
+  </div>
+        <div v-if="isMail==='Y'" class="form-group form-inline">
+      <span class="leftlable " for="name">收件人:</span>
+            <div class="rightform">
+       <template v-for="sender,index in senderList">
+       <div style="margin-top: 2px">
+           <span  for="name">收件人{!index+1!}:</span>
+            <input type="text" style="width: 80%;"  class="form-control" @blur="checkemail(index,senderList[index])" id="name" placeholder="请输入收件人邮箱" v-model="senderList[index]">
+           <img v-show="index>0" style="width: 20px;height: 20px;margin-left: 6px" @click="deleteSender(index)" src="../static/image/delete.png">
+            </div>
+      </template>
+          <p v-show="indexsss" :style="styles" >邮箱格式不正确,请检查</p>
+            </div>
+            <div style="width: 20%;
+    float: left;
+    margin-left: 30px"><button type="submit" class="btn-save" @click="addSender()">添加</button></div>
+  </div>
+        <div class="form-group">
+      <span class="leftlable" for="name">定时执行:</span>
+      <div class="caseDiv">
+          <div style="margin-left: -24px">
+                <div v-for="projectName,index in projectList" class="projectCss" style="height: 0px" ><span :class="{'projectnamesel':currentSort==index}" class="projectname"  @click="changeModel(index,projectName)">{! projectName !}</span>
+        <div :class="{'isshow':currentSort!==index}" style="height: 4px;background-color: #2372A8;margin-top: 10px;margin-left:5px;margin-right:5px;text-align: center "></div>
+        </div>
+          </div>
+                {% comment %}<ul id="myTab"  class="nav nav-tabs" style="margin-left: -16px">
+			                <li v-for="projectName,index in projectList" v-bind:class="index===0?'active':''"><a @click="changeModel(projectName)" data-toggle="tab">
+                        {! projectName !}</a></li>
+                        </ul>{% endcomment %}
+                <div  class="row" id="allmodelcase" style="padding-left: 23px"  >
+
+                       {% comment %} <ul class="list-group" style="text-align: center">
+                            <li v-for="projectName,index in projectList" class="list-group-item " v-bind:class="index===0?'active':''" style="background-color: lightblue">{! projectName !}</li>
+                        </ul>{% endcomment %}
+                        {% comment %}<ul class="list-group" style="text-align: center">
+                            <li v-for="model in modelList" class="list-group-item " style="background-color: lightblue">{! model !}</li>
+                        </ul>{% endcomment %}
+                    <div v-if="datas==0"   class="col-md-12" style="margin-bottom: 5px;height: 80%;margin-top: 40px;max-height: 80%">
+                        <h4 style="text-align: center">暂无数据,请先添加用例</h4>
+                    </div>
+
+                    <div v-if="datas!==0"   class="col-md-12" style="margin-bottom: 5px;height: 80%;margin-top: 40px;max-height: 80%">
+                        <template v-for="item in modelList">
+                        <label for="name" style="width: 100%">{! item.modelname !}:</label>
+                        <template v-for="itemcase in item.allData">
+                            <div style="width: 33.3%;float: left;">
+                            <input  type="checkbox"   :value="itemcase.caseId" id="isTeam" :checked="itemcase.checked" @click="checkList($event)">
+                            <span >{! itemcase.caseName !}</span>
+                            </div>
+                        </template>
+                        </template>
+                    </div>
+                     <div style="float: right;margin-right: 30px;">
+                        <input  type="checkbox" value="1" id="isTeam" :checked="selectAll" @click="choseAll($event)" >
+                            <span >全选</span>
+                        </div>
+                    </div>
+
+  </div>
+        </div>
+
+        <div class="form-group">
+        <span class="leftlable" for="name">定时时间:</span>
+        <div class="rightform">
+       <select class="form-control" style="width: 48%;float: left" v-model="timingDay">
+           <option value="" >请选择</option>
+         <option value="每天">每天</option>
+           <option value="每周">每周</option>
+            <option value="每月">每月</option>
+        </select>
+        <select class="form-control" style="width: 48%;float: left;margin-left: 5px" v-model="timingHour">
+           <option value="">请选择</option>
+            <option value="09:00">09:00</option>
+             <option value="14:00">14:00</option>
+             <option value="19:00">19:00</option>
+        </select>
+    </div>
+    </div>
+        <div class="form-group">
+        <div class="leftlable"></div>
+        <div class="rightform">
+            <button  class="btn-config" @click="saveConfig()">保存设置</button>
+        </div>
+    </div>
+    </div>
+    </div>
+
+</div>
+{% endblock %}
+{% block vuejs%}
+    <script type="text/javascript">
+var vm = new Vue({
+    delimiters: ['{!', '!}'],
+    el:'#configer',
+    data:{
+        datas:0,
+        currentSort:0,
+        styles:{
+            display: "none",
+        },
+        mailY:"mailY",
+        indexsss:false,
+        mailN:"",
+        reportY:"reportY",
+        reportN:"",
+        isMail:"Y",
+        isReport:"Y",
+        senderList:[],
+        projectList:[],
+        modelList:[],
+        allData:[],
+        caseList:[],
+        selectAll:false,
+        timingDay:"每天",
+        timingHour:"9:00",
+        eviorment:"Qa",
+        projectName:""
+     },
+    created(){
+        vm1.$data.currentSort = 6;
+        this.addCase();
+        //this.getinitData()
+    },
+     mounted:function() {
+        this.getinitData();
+
+    },
+    methods:{
+        isSend(e){
+            let checked = e.target.checked;
+            let value = e.target.value;
+            if(value==='mailY'){
+                this.isMail="Y";
+                this.mailY = value;
+                this.mailN = ""
+            }else if(value==='mailN'){
+                this.isMail="N";
+                this.mailN = value;
+                this.mailY = ""
+            }else if(value==='reportY'){
+                this.isReport = "Y";
+                this.reportY = value;
+                this.reportN = ""
+
+            }else if(value==='reportN'){
+                this.isReport = "N";
+                this.reportN = value;
+                this.reportY = ""
+            }
+        },
+        addSender(){
+            var data = "";
+            this.senderList.push(data);
+            //console.log(this.senderList)
+        },
+        deleteSender(index){
+            this.senderList.splice(index,1)
+        },
+        checkemail(index,email){
+            //console.log(email);
+            var reg = /^[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$/;
+            if(reg.test(email)){
+                this.indexsss=false;
+                this.styles={
+                   display: "none",
+                }
+            }else{
+                this.indexsss=true;
+                this.styles={
+                    color: "red",
+                    display:"block",
+                    "margin-left":"8.3%"
+                }
+            }
+        },
+        addCase(){
+            axios.get('/getAllcase/')
+                .then(resp =>{
+                    //console.log(resp.data);
+                    this.projectList = resp.data.projectList;
+                    //console.log(this.projectList);
+                    if(resp.data.projectList.length===0){
+                        this.datas = 0
+                    }
+                    else{
+                        this.datas  =1;
+                        this.changeModel(0,this.projectList[0])
+                    }
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+        },
+        changeModel(index,initProjectName){
+            this.currentSort =index;
+            this.selectAll=false;
+            var target = document.getElementById("allmodelcase");
+            var spinner = Spinner().spin(target);
+            //console.log(initProjectName);
+            axios.get('/getprojectCase/',{params: {
+                        initProjectName:initProjectName,
+                    }})
+                .then(resp =>{
+                    spinner.spin();
+                    //console.log(resp.data);
+                    this.modelList=[];
+                    for(var i=0;i<resp.data.data.length;i++){
+                            let data = {
+                               modelname:resp.data.data[i].moduleName,
+                               allData:resp.data.data[i].allcase,
+                            };
+                            this.modelList.push(data);
+                            }
+                    this.getchecked()
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+        },
+
+        {% comment %}changeModel(initProjectName){
+
+            this.modelList=[];
+            for(var i=0;i<this.allData.length;i++){
+                if(this.allData[i].projectName===initProjectName){
+                    let data = {
+                       modelname:this.allData[i].moduleName,
+                       allData:this.allData[i].allcase,
+                    };
+                    this.modelList.push(data);
+                }
+            }
+            this.getchecked()
+        },{% endcomment %}
+        choseAll(e){
+            let checked = e.target.checked;
+            this.selectAll = checked;
+            if(checked){
+                for(var q=0;q<this.modelList.length;q++){
+                allcase = this.modelList[q].allData;
+                for(var a = 0;a<allcase.length;a++){
+                    allcase[a].checked=true;
+                    this.caseList.push(allcase[a].caseId.toString())
+                    }
+                }
+            }else{
+                this.caseList=[];
+                for(var q=0;q<this.modelList.length;q++){
+                allcase = this.modelList[q].allData;
+                for(var a = 0;a<allcase.length;a++){
+                    allcase[a].checked=false;
+                    }
+                }
+            }
+
+        },
+        checkList(e){
+            let checked = e.target.checked;
+            if(checked){
+                this.caseList.push(e.target.value)
+            }else{
+                this.caseList.pop(e.target.value)
+            }
+            //console.log(this.caseList)
+        },
+        saveConfig(){
+
+           {% comment %} for(var i=0;i<this.senderList;i++){
+                if(this.senderList[i]===""){
+                     this.indexsss=true;
+                    this.styles={
+                            color: "red",
+                            display:"block",
+                            "margin-left":"8.3%"
+                        }
+                }
+            }{% endcomment %}
+            if(this.styles.display==="block"){
+                alert("请检查界面信息")
+            }
+            else {
+                var target = document.getElementById("configer");
+                var spinner = Spinner({top:'2'}).spin(target);
+                let data_to_send = {
+                    eviorment: this.eviorment,
+                    isReport: this.isReport,
+                    isMail: this.isMail,
+                    //selectAll: this.selectAll,
+                    senderList: this.senderList,
+                    runcase: this.caseList,
+                    sechdel_time: this.timingDay + "&" + this.timingHour,
+                };
+                //console.log(this, data_to_send);
+                axios.post('/saveConfigData/', data_to_send)
+                    .then(resp => {
+                        toastr.options = {
+                            closeButton: false,
+                            debug: false,
+                            progressBar: false,
+                            positionClass: "toast-top-center",
+                            onclick: null,
+                            showDuration: "300",
+                            hideDuration: "1000",
+                            timeOut: "2000",
+                            extendedTimeOut: "1000",
+                            showEasing: "swing",
+                            hideEasing: "linear",
+                            showMethod: "fadeIn",
+                            hideMethod: "fadeOut"
+                        };
+                        //console.log(resp.data);
+                        if (resp.data.code === 0) {
+                            spinner.spin();
+                            toastr.success(resp.data.msg);
+                        } else {
+                            spinner.spin();
+                            toastr.error(resp.data.msg)
+                        }
+                    }).catch(err => {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                })
+            }
+        },
+        getinitData(){
+            axios.post('/getConfiginitData/')
+                .then(resp =>{
+                    //console.log(resp.data);
+                    this.showinitData(resp.data)
+
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+        },
+        getchecked(){
+            for(var q=0;q<this.modelList.length;q++){
+                alldata = this.modelList[q].allData;
+                for(var a = 0;a<alldata.length;a++){
+                    for (var f = 0;f<this.caseList.length;f++){
+                        if (alldata[a].caseId===parseInt(this.caseList[f])){
+                            alldata[a].checked=true
+                        }
+                    }
+                }
+            }
+
+        },
+        showinitData(initdatas){
+            this.eviorment = initdatas.eviorment;
+            let ismail = initdatas.ismail;
+            let isReport=initdatas.isreport;
+            this.isMail =  ismail;
+            this.isReport = isReport;
+            if(ismail==="Y"){
+                this.mailY ="mailY"
+            }else{
+                this.mailN = "mailN"
+            }
+            if(isReport==="Y"){
+                this.reportY = "reportY"
+            }else{
+                this.reportN = "reportN"
+            }
+            var sendlists = initdatas.senderlist.replace(/\s*/g,"").split(",");
+            var runcase = initdatas.runcase.replace(/\s*/g,"").split(",");
+            this.senderList = sendlists;
+            var sechdelList = initdatas.sechdel_time.split("&");
+            this.timingDay=sechdelList[0];
+            this.timingHour=sechdelList[1];
+            this.caseList = runcase;
+            //this.selectAll = eval(initdatas.selectall.toLowerCase());
+        }
+
+    }
+})
+</script>
+{% endblock %}

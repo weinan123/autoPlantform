@@ -1,0 +1,7 @@
+.errorMail{
+    color: red;
+    display:block;
+}
+.trueMail{
+    display: none;
+}

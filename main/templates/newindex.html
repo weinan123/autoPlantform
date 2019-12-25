@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/css/newindex.css" rel="stylesheet">
+    <link href="/static/css/baseCss.css" rel="stylesheet">
+    <link href="/static/css/apiCasesPage.css" rel="stylesheet">
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-theme.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="/static/css/myCss.css" rel="stylesheet">
+    <link href="/static/css/singleCss.css" rel="stylesheet">
+    <link href="/static/js/toast/toastr.min.css" rel="stylesheet" type="text/css">
+    <link href="/static/dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
+    <link href="https://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/bootstrap-switch/4.0.0-alpha.1/css/bootstrap-switch.min.css" rel="stylesheet">
+    <link href="/static/css/jquery.jsonview.css" rel="stylesheet" type="text/css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="https://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-select.min.js"></script>
+    <script src="/static/js/vue.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script src="/static/js/axios.js"></script>
+    <script src="/static/js/vue-router.js"></script>
+    <script src="/static/dist/jsoneditor.min.js"></script>
+    <script src="/static/js/toast/toastr.min.js"></script>
+    <script src="/static/js/echarts.min.js"></script>
+    <script src="/static/js/spin.min.js"></script>
+    <script src="/static/js/bootstrap-paginator.js"></script>
+    <script src="/static/js/jquery.jsonview.js"></script>
+    <script src="/static/js/alert.js"></script>
+    <script src="/static/js/jquery.json-viewer.js"></script>
+    {% block script %}
+    {% endblock %}
+    {% block title %}<title> 首页</title> {% endblock %}
+</head>
+<body style="background-color: #f7f7f7;height: 100%;font-size: 14px" >
+<div id="row" style="overflow-x: hidden;height: 100%;width: 100%">
+    <div id="left" class="navleft">
+        <div class="indexleft"><p>自动化接口平台</p></div>
+        <div style="width: 100%;margin-top: 33%;">
+            <ul style=" list-style: none;padding-inline-start: 14px;" >
+                <li v-for="(item,index) in navTab" :key="index" class="row"
+                    style="height:100%;width:100%;cursor:pointer;">
+                    {% comment %}<div :class="{'selected':currentSort ==index}" >{% endcomment %}
+                    <div class="selected" >
+                        <p  class="indextab" style="margin-top: 10px;float: left;width: 85%">{!item.name !}</p>
+                        <span  data-toggle="collapse" v-bind:data-target="'#collapse'+[item.id]"
+                              :class="item.class"
+                                  style="color: white;width:15%;float: left;height: 100%;margin-top: 10px"></span>
+                    </div>
+                    <ul v-bind:id="'collapse'+[item.id]" v-bind:class="item.collapse">
+                        <li v-for="(secitem,index) in item.secTab" >
+                            <a :href="item.url"><p v-bind:id="'p'+[item.id]+[index]" class="indextab" style="margin-top: 10px">{!secitem.name !}</p></a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="userdiv"></div>
+        <div style="width: 100%;margin-bottom: 10px">
+            <p class="indextab">当前用户：{! username !}</p>
+            <button class="username" @click="quitServer()"><p class="btnquit" >退出当前用户</p></button>
+        </div>
+    </div>
+    <div id="right" style="margin-left: 10%">
+        <div style="width: 100%;height: 50px;background: #05314E;">
+            <button class="btn-local" style="margin-top: 10px;margin-right: 20px;margin-left: 20px;">新增项目</button>
+            <button class="btn-local" style="margin-top: 10px;margin-right: 20px">新增用例</button>
+            <button class="btn-local" style="margin-top: 10px;margin-right: 20px">新增计划</button>
+            <button class="btn-local" style="margin-top: 10px;margin-right: 20px">返回首页</button>
+            <button class="btn-local" style="margin-top: 10px;margin-right: 20px">性能测试</button>
+        </div>
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</div>
+</body>
+<script type="text/javascript">
+var vm1 = new Vue({
+    delimiters: ['{!', '!}'],
+    el:'#left',
+    data(){
+       return {
+           currentSort:0,
+           username:"",
+           user_level:"",
+           user_group:"",
+
+           navTab:[{
+               id:1,
+               name:"首页",
+               url:"/index/",
+               secTab:[{
+                   name:"首页",
+                   url:"/index/",
+               }],
+               class:"glyphicon glyphicon-home",
+               collapse:""
+
+           },{
+               id:2,
+               name:"单接口",
+               url:"/singleInterface/",
+               secTab:[{
+                   name:"单接口",
+                   url:"/singleInterface/"
+               }],
+                class:"glyphicon glyphicon-folder-open",
+               collapse:"collapse"
+
+           },{
+               id:3,
+               name:"项目管理",
+               url:"/firstProjectList/",
+               secTab:[{
+                   name:"项目列表",
+                   url:"/firstProjectList/",
+               },
+                   {
+                   name:"新建项目",
+                   url:""
+               },
+                   {
+                   name:"项目详情",
+                   url:""
+               }],
+                class:"glyphicon glyphicon-th-large",
+              collapse:"collapse"
+
+           },{
+               id:4,
+               name:"模块管理",
+               url:"/firstProjectList/",
+               secTab:[{
+                   name:"模块列表",
+                   url:""
+               },
+                   {
+                   name:"新建模块",
+                   url:""
+               },
+                   {
+                   name:"模块详情",
+                   url:""
+               }],
+                class:"glyphicon glyphicon-th-large",
+               collapse:"collapse"
+
+           },{
+               id:5,
+               name:"测试用例集管理",
+               url:"/apiCases/",
+               secTab:[{
+                   name:"用例列表",
+                   url:""
+               },
+                   {
+                   name:"新建用例",
+                   url:""
+               },
+                  ],
+                class:"glyphicon glyphicon-folder-open",
+               collapse:"collapse"
+
+           },{
+               id:6,
+               name:"测试报告管理",
+               url:"/batchReports/",
+               secTab:[{
+                   name:"测试报告",
+                   url:"/batchReports/",
+               },
+               ],
+               class:"glyphicon glyphicon-flag",
+               collapse:"collapse"
+
+           },{
+               id:7,
+               name:"权限控制",
+               url:"/userPermit/",
+               secTab:[{
+                   name:"项目列表",
+                   url:""
+               },
+                   {
+                   name:"新建项目",
+                   url:""
+               },
+                   {
+                   name:"项目详情",
+                   url:""
+               }],
+                class:"glyphicon glyphicon-folder-open",
+               collapse:"collapse"
+
+           },{
+               id:8,
+               name:"全局配置",
+               url:"/configer/",
+               secTab:[{
+                   name:"项目列表",
+                   url:""
+               },
+                   {
+                   name:"新建项目",
+                   url:""
+               },
+                   {
+                   name:"项目详情",
+                   url:""
+               }],
+                class:"glyphicon glyphicon-folder-open",
+               collapse:"collapse"
+
+           },
+           {
+               id:9,
+               name:"定时任务管理",
+               url:"/projectconfiger/",
+               secTab:[{
+                   name:"项目列表",
+                   url:""
+               },
+                   {
+                   name:"新建项目",
+                   url:""
+               },
+                   {
+                   name:"项目详情",
+                   url:""
+               }],
+                class:"glyphicon glyphicon-off",
+               collapse:"collapse"
+
+           }]
+
+       }
+
+    },
+    created(){
+    },
+     mounted:function() {
+         this.getUsername();
+         this.getUserLevel();
+
+    },
+    methods:{
+        //获取cookie
+        getCookie(cname){
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                var key = c.split("=")[0].replace(/\s*/g,"");
+                if(cname===key){
+                    let cookie_value = c.split("=")[1];
+                    return cookie_value
+                }
+            }
+        return "";
+      },
+        //赋值username
+        getUsername(){
+            let username = this.getCookie("usename");
+            if (username===""){
+                window.location.href='/login';
+            }else{
+                //console.log(this.getCookie("usename"));
+            this.username = this.getCookie("usename");
+            }
+        },
+        //获取登录等级，显示左侧列表
+        getUserLevel(){
+         axios.get('/getUserLevel/',{params:{ username:this.getCookie("usename")}})
+             .then(resp =>{
+                 //console.log(resp.data);
+                 this.user_level = resp.data.user_level;
+                 this.user_configPermit = resp.data.user_configPermit;
+                 this.user_group  = resp.data.user_group;
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+    },
+        quitServer(){
+            window.location.href="/logout/";
+        },
+        active(index){
+                this.currentProject=index;
+        },
+        }
+}).$mount('#left')
+</script>
+{% block vuejs %}
+{% endblock %}
+</html>

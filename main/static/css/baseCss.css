@@ -1,0 +1,88 @@
+/*
+外部框整体样式*/
+.content{
+    float: left;
+    background-color:#F7F7F7 ;
+    width: 85%;
+    height: 100%;
+}
+/*顶栏样式*/
+.pageheader{
+    height: 44px;
+    width: 100% ;
+    background: #FFFFFF;
+    margin-top: 44px;
+    text-align: center;
+}
+/*标题样式*/
+.titlecss{
+    font-family: PingFangSC-Semibold;
+    font-weight: bold;
+    color: #2372A8;
+    letter-spacing: 0;
+    float: left;
+    font-size: 24px;
+    margin-left: 37px;
+    padding-top: 5px;
+}
+/*下部框整体样式*/
+.formContent{
+    margin-left: 31px;
+    background-color: white;
+    margin-top: 1%;
+    height: 750px;
+    width: 86%;
+}
+
+/*保存按钮样式*/
+.btn-save{
+    background: #2372A8;
+    border-radius: 2px;
+    width:70px;
+    height:35px;
+    border: 1px solid #2372A8;
+    font-size: 14px;
+    color: #FFFFFF;
+    letter-spacing: 0;
+}
+
+/*导入按钮样式*/
+.uploadbtn{
+    width:80px;height:28px;background: rgba(245,166,35,0.15);
+    border: 1px solid #F5A623;
+    border-radius: 2px;
+    font-family: PingFang-SC-Regular;
+    font-size: 14px;
+    color: #F5A623;
+    letter-spacing: 0;
+}
+
+
+/*表格中普通按钮样式*/
+.btn-local{
+    background-color: #2372A8;
+    color: #FFFFFF;
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+    display: inline-block;
+    border: 1px solid  #2372A8;
+    font-family: inherit;
+}
+/*表格中删除按钮样式*/
+.btn-delete{
+    background-color: rgba(35,114,168,0.15);
+    color: #2372A8;
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+    display: inline-block;
+    border: 1px solid rgba(35,114,168,0.15);
+    font-family: inherit;
+}
+
+
+
+

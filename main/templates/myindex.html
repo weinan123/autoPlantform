@@ -1,0 +1,239 @@
+{% extends 'newindex.html' %}
+{% block title %}<title> 首页</title> {% endblock %}
+{% block script %}
+<link href="/static/css/myindex.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+<div id ="myindex" class="content">
+    <div class="pageheader">
+        <div v-for="projectName,index in projectNameList" class="projectCss" style="cursor:pointer" ><a :class="{'projectnamesel':currentSort==index}" class="projectname"  @click="changeChart(index,projectName)">{! projectName !}</a>
+        <div :class="{'isshow':currentSort!==index}" style="height: 4px;background-color: #2372A8;margin-top: 10px;margin-left:5px;margin-right:5px;text-align: center "></div>
+        </div>
+    </div>
+   {% comment %} <ul id="myTab"  class="nav nav-tabs" >
+			<li v-for="projectName,index in projectNameList" v-bind:class="index===0?'active':''"><a @click="changeChart(projectName)" data-toggle="tab">
+                {! projectName !}</a></li>
+    </ul>{% endcomment %}
+    <div class="chartContent">
+		<div id="myTabContent" class="myTabContent" >
+		</div>
+	</div>
+    <div class="chartContent">
+		<div id="myTabContent1" class="myTabContent" style="padding-top: 20px">
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block vuejs %}
+<script type="text/javascript">
+var vm = new Vue({
+    delimiters: ['{!', '!}'],
+    el:'#myindex',
+    data:function(){
+        return{
+            currentSort:0,
+            projectName:"",
+            showchart:"",
+            projectNameList:[],
+            myTabContent:"",
+            myTabContent1:"",
+            options:"",
+            tab2Option:"",
+            returndata:"",
+        }
+    },
+    created(){
+
+    },
+    mounted:function() {
+          vm1.$data.navTab[0].collapse = "";
+           $("#p10").css("color", "#2372A8");
+        this.getallData();
+
+    },
+    methods:{
+        active(index){
+
+
+        },
+        getinitData(){
+          this.myTabContent = echarts.init(document.getElementById('myTabContent'));
+          this.myTabContent.setOption(this.options);
+          this.myTabContent1 = echarts.init(document.getElementById('myTabContent1'));
+          this.myTabContent1.setOption(this.tab2Option);
+        },
+        getallData(){
+            axios.get('/getchartData/',params={})
+             .then(resp =>{
+                 //console.log(resp.data);
+                 this.projectNameList=resp.data.projectList;
+                 var projectName=this.projectNameList[0];
+                 this.returndata = (resp.data.data);
+                 this.changeChart(0,projectName);
+                 //console.log(resp.data.data);
+                    }).catch(err=>{
+                        console.log('请求失败:'+err.status+','+err.statusText);
+                })
+        },
+        mulchartData(subtext,allcase,allcasepass,allcasefail,allcasenull,modelListName,allcasemodellist,passcasemodelist,
+                        failcasemodelist,nullcasemodelist){
+            var tab2Option ={
+			title : {
+				text : '项目总执行情况',
+				subtext : subtext,
+				x : 'center'
+			},
+			tooltip : {
+				trigger : 'item',
+				formatter : "{a} <br/>{b} : {c} ({d}%)"
+			},
+			legend : {
+				orient : 'vertical',
+				left : 'left',
+				data : [ '执行通过', '执行失败', '未执行']
+			},
+			series : [ {
+				name : subtext,
+				type : 'pie',
+				radius : '55%',
+				center : [ '50%', '60%' ],
+				data : [ {
+					value : allcasepass,
+					name : '执行通过',
+                    itemStyle: {
+				    normal:{
+				        color:"#03BABF"
+                    }
+                }
+				}, {
+					value : allcasefail,
+					name : '执行失败',
+                    itemStyle: {
+				    normal:{
+				        color:"#FF4834 "
+                    }
+                }
+				}, {
+					value : allcasenull,
+					name : '未执行',
+                    itemStyle: {
+				    normal:{
+				        color:"#EEEEEE"
+                    }
+                }
+				},],
+				itemStyle : {
+					emphasis : {
+						shadowBlur : 10,
+						shadowOffsetX : 0,
+						shadowColor : 'rgba(0, 0, 0, 0.5)'
+					}
+				}
+			} ]
+		};
+            var options={
+            //定义一个标题
+            title:{
+                text:"项目各模块执行情况",
+                subtext : subtext,
+            } ,
+            legend:{
+                data:["总用例","通过","失败","未执行"]
+            },
+            tooltip:{
+                show: true
+            },
+            calculable : true,
+            xAxis : {
+            type : 'category',
+            data :modelListName
+            },
+			yAxis : {
+				type : 'value'
+			},
+			series : [
+			    {
+                name:"总用例",
+				data : allcasemodellist,
+				type : 'bar',
+                itemStyle: {
+				    normal:{
+				        color:"#2372A8"
+                    }
+                }
+			},
+             {
+
+                name:"通过",
+				data : passcasemodelist,
+				type : 'bar',
+                itemStyle: {
+				    normal:{
+				        color:"#03BABF"
+                    }
+                }
+			},
+             {
+
+                name:"失败",
+				data :failcasemodelist,
+				type : 'bar',
+                itemStyle: {
+				    normal:{
+				        color:"#FF4834"
+                    }
+                }
+
+			},
+            {
+                name:"未执行",
+				data : nullcasemodelist,
+				type : 'bar',
+                itemStyle: {
+				    normal:{
+				        color:"#EEEEEE"
+                    }
+                }
+
+			},]
+
+         };
+            this.options=options;
+            this.tab2Option=tab2Option;
+            this.getinitData()
+
+        },
+        changeChart(index,projectName){
+            this.currentSort = index;
+            var modelListName = [];
+            var allcasemodellist = [];
+            var passcasemodelist = [];
+            var failcasemodelist = [];
+            var nullcasemodelist = [];
+            var allcase=0;
+            var allcasepass=0;
+            var allcasefail=0;
+            var allcasenull=0;
+            var subtext = projectName;
+            for(var j=0;j<this.returndata.length;j++){
+                if(projectName=== this.returndata[j].projectName) {
+                    modelListName.push(this.returndata[j].moduleName);
+                    allcasemodellist.push(this.returndata[j].allcaseNum);
+                    passcasemodelist.push(this.returndata[j].passcaseNum);
+                    failcasemodelist.push(this.returndata[j].failcaseNum);
+                    nullcasemodelist.push(this.returndata[j].blockcaseNum);
+                    allcase = allcase+this.returndata[j].allcaseNum;
+                    allcasepass=allcasepass+this.returndata[j].passcaseNum;
+                    allcasefail = allcasefail+this.returndata[j].failcaseNum;
+                    allcasenull = allcasenull+this.returndata[j].blockcaseNum;
+                }
+            }
+             this.mulchartData(subtext,allcase,allcasepass,allcasefail,allcasenull,modelListName,allcasemodellist,passcasemodelist,
+            failcasemodelist,nullcasemodelist)
+
+        }
+
+    }
+    }).$mount('div')
+</script>
+{% endblock %}
