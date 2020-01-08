@@ -1,0 +1,93 @@
+{% extends 'newindex.html' %}
+{% block title %}<title> 首页</title> {% endblock %}
+{% block script %}
+<link href="/static/css/myindex.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+<div id ="newproject" class="content">
+    <div class="pageheader">
+            <p class="titlecss">新建项目</p>
+    </div>
+    <div class="formContent">
+    <div class="row" role="form" style="padding-top: 20px;margin-left: 20px">
+        <label style="width: 10%;float: left;margin-top: 5px;font-size: 15px;color: #2372A8">项目名称：</label>
+        <div style="width: 30%;float: left">
+        <input class="form-control" type="text">
+        </div>
+    </div>
+    <div class="row" role="form" style="margin-top: 20px;margin-left: 20px">
+        <label style="width: 10%;float: left;margin-top: 5px;font-size: 15px;color: #2372A8">负责人：</label>
+        <div style="width: 30%;float: left">
+        <input class="form-control" type="text">
+        </div>
+    </div>
+        <div class="row" role="form" style="margin-top: 20px;margin-left: 20px">
+        <label style="width: 10%;float: left;margin-top: 5px;font-size: 15px;color: #2372A8">测试人员：</label>
+        <div style="width: 30%;float: left">
+        <input class="form-control" type="text">
+        </div>
+    </div>
+        <div class="row" role="form" style="margin-top: 20px;margin-left: 20px">
+        <label style="width: 10%;float: left;margin-top: 5px;font-size: 15px;color: #2372A8">开发人员：</label>
+        <div style="width: 30%;float: left">
+        <input class="form-control" type="text">
+        </div>
+    </div>
+        <div class="row" role="form" style="margin-top: 20px;margin-left: 20px">
+        <label style="width: 10%;float: left;margin-top: 5px;font-size: 15px;color: #2372A8">发布应用：</label>
+        <div style="width: 30%;float: left">
+            <select class="form-control" >
+                <option>请选择</option>
+                <option>web</option>
+                <option>app</option>
+                <option>客户端</option>
+            </select>
+        </div>
+        </div>
+            <div class="row" role="form" style="margin-top: 20px;margin-left: 20px">
+        <label style="width: 10%;float: left;margin-top: 5px;font-size: 15px;color: #2372A8">简要描述：</label>
+        <div style="width: 30%;float: left">
+            <textarea class="form-control" rows="4"></textarea>
+        </div>
+    </div>
+            <div class="row" role="form" style="margin-top: 20px;margin-left: 20px">
+        <label style="width: 10%;float: left;margin-top: 5px;font-size: 15px;color: #2372A8">其他说明：</label>
+        <div style="width: 30%;float: left">
+            <textarea class="form-control" rows="3"></textarea>
+        </div>
+    </div>
+        <div class="row" role="form" style="margin-top: 20px;margin-left: 20px">
+        <label style="width: 10%;float: left;margin-top: 5px;font-size: 15px;color: #2372A8"></label>
+        <div style="width: 30%;float: left">
+            <button class="btn btn-success">点击提交</button>
+            <span>>></span>
+            <button class="btn btn-local">新建模块</button>
+        </div>
+        </div>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block vuejs %}
+<script type="text/javascript">
+var vm = new Vue({
+    delimiters: ['{!', '!}'],
+    el:'#newproject',
+    data:function(){
+        return{
+
+        }
+    },
+    created(){
+
+    },
+    mounted:function() {
+          vm1.$data.navTab[2].collapse = "";
+          $("#p31").css("color", "#2372A8");
+    },
+    methods:{
+    }
+    }).$mount('div')
+</script>
+{% endblock %}

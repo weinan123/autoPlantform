@@ -1,0 +1,61 @@
+{% extends 'newindex.html' %}
+{% block title %}<title> 首页</title> {% endblock %}
+{% block script %}
+{% endblock %}
+{% block content %}
+<div id ="privtefunction" class="content">
+    <div class="pageheader">
+            <p class="titlecss">私有函数</p>
+    </div>
+    <div class="formContent">
+        <div style="padding: 20px;height: 100%;width: 90%">
+        <table class="table table-bordered">
+  <thead>
+    <tr>
+      <th style="width: 5%" >编号</th>
+      <th style="width: 10%">函数名</th>
+      <th style="width: 10%">所属项目</th>
+      <th style="width: 10%">操作</th>
+    </tr>
+  </thead>
+  <tbody id="row" >
+    <tr>
+      <td >1</td>
+      <td >有鱼股票项目函数</td>
+      <td style="color:#2372A8 ">_random(10)</td>
+        <td >
+            <button  class="btn-local" type="submit" class="btn  btn-sm" >查看编辑</button>
+          <button class="btn-delete" type="submit" class="btn btn-sm" >删除</button>
+        </td>
+    </tr>
+  </tbody>
+</table>
+        </div>
+
+
+    </div>
+</div>
+{% endblock %}
+{% block vuejs %}
+<script type="text/javascript">
+var vm = new Vue({
+    delimiters: ['{!', '!}'],
+    el:'#privtefunction',
+    data:function(){
+        return{
+
+        }
+    },
+    created(){
+
+    },
+    mounted:function() {
+          vm1.$data.navTab[7].collapse = "";
+            $("#p81").css("color", "#2372A8");
+    },
+    methods: {
+
+    }
+    }).$mount('div')
+</script>
+{% endblock %}

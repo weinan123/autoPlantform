@@ -62,8 +62,11 @@ def addProjectList(request):
             }
 
     return JsonResponse(result, safe=False)
+def addProject(request):
+    return render(request,"newproject.html")
 
 
+'''
 def addProject(request):
     result = {
         'code': -1,
@@ -110,6 +113,7 @@ def addProject(request):
             }
 
     return JsonResponse(result, safe=False)
+'''
 
 
 def projectListInfo(request):

@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url
 from main import views as main
 from main import apiinfo, report
-from main import projectList, configer, usepermit, cookiesManage, caseList, projectConf
+from main import projectList, configer, usepermit, cookiesManage, caseList, projectConf,functionsInfor
 
 urlpatterns = [
     url(r'^$', main.index),
@@ -90,5 +90,18 @@ urlpatterns = [
     url(r'^projectconfiger/$', projectConf.projectconfiger),
     url(r'^getScheduleinitData/$', projectConf.getScheduleinitData),
     url(r'^saveProConf/$', projectConf.saveProConf),
+    url(r'^debugtalk/$', functionsInfor.debugtalk),
+    url(r'^basicfunction/$', functionsInfor.basicfunction),
+    url(r'^privtefunction/$', functionsInfor.privtefunction),
+    url(r'^savefunction/$', functionsInfor.savefunction),
+    url(r'^getfunction/$', functionsInfor.getfunction),
+    url(r'^editFunction/$', functionsInfor.editFunction),
+    #url(r'^/editFunction/(?P<int>\d+)/$', functionsInfor.editFunction),
+
+
+
+
+
+
 
 ]

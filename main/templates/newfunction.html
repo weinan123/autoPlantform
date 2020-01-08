@@ -1,0 +1,219 @@
+{% extends 'newindex.html' %}
+{% block title %}<title> 首页</title> {% endblock %}
+{% block script %}
+<!--导入js库-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js" type="text/javascript"
+            charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ext-language_tools.js" type="text/javascript"
+            charset="utf-8"></script>
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+<link href="/static/css/myindex.css" rel="stylesheet">
+
+{% endblock %}
+{% block content %}
+<div id ="newfunction" class="content">
+    <div class="pageheader">
+            <p class="titlecss">新建函数</p>
+    </div>
+    <div class="formContent">
+        <pre id="code" class="ace_editor" style="margin-top: 0px; margin-bottom: 0px" >
+    <textarea v-model="functioninfor" >
+        {! debugtalk !}
+    </textarea>
+    </pre>
+        <button id="push" class="btn btn-success" style="float: right;margin: 10px" data-toggle="modal" data-target="#savefunction">点击提交</button>
+    </div>
+    <div class="modal fade" id="savefunction" tabindex="-1" role="dialog" aria-labelledby="newapiLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 450px;margin: 75px auto">
+                    <div class="modal-content" id="newinfo">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="newapiLabel">
+                                保存函数
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <form role="form" class="form-horizontal">
+                            <div class="form-group">
+                               <label  for="version" class="col-sm-3">函数名</label>
+                               <div class="col-sm-7">
+                               <input  class="form-control" v-model="funcrionname" >
+                               </input>
+                               </div>
+                                <div class="col-sm-2"></div>
+                            </div>
+
+                            <div class="form-group">
+                               <label  for="version" class="col-sm-3">函数类型:</label>
+                               <div class="col-sm-7">
+                               <select  class="form-control" name="selectPrior" @change="selectModel($event)" v-model="functiontype"  >
+                                   <option value=0 selected >请选择</option>
+                                   <option value="1" >公用函数</option>
+                                   <option value="2">项目函数</option>
+
+                               </select>
+                               </div>
+                                <div class="col-sm-2"></div>
+                            </div>
+                            <div v-show="showPub===true" class="form-group">
+                               <label  for="version" class="col-sm-3">所属项目:</label>
+                               <div class="col-sm-7">
+                               <select class="form-control" name="selectPrior" v-model="procontain" >
+                                   <option v-for="project in projectlist" value=null :value="project" >{! project !}</option>
+                               </select>
+                               <div class="col-sm-2"></div>
+                            </div>
+                            </div>
+                                <div  v-show="showPvr===true" class="form-group">
+                               <label  for="version" class="col-sm-3">引用函数名:</label>
+                               <div class="col-sm-7">
+                               <input class="form-control" name="selectPrior" v-model="variname" >
+
+                               </div>
+                               <div class="col-sm-2"></div>
+                            </div>
+                        </form>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                            <button type="submit" class="btn btn-primary" @click="saveFunction()" data-dismiss="modal">确定</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+</div>
+</div>
+{% endblock %}
+{% block vuejs %}
+<script type="text/javascript">
+var vm = new Vue({
+    delimiters: ['{!', '!}'],
+    el:'#newfunction',
+    data:function(){
+        return{
+            showPub:false,
+            showPvr:false,
+            projectlist:[],
+            functioninfor:"",
+            funcrionname:"",
+            functiontype:null,
+            procontain:null,
+            variname:"",
+            debugtalk:""
+        }
+    },
+    created(){
+    },
+    mounted:function() {
+          vm1.$data.navTab[7].collapse = "";
+            $("#p82").css("color", "#2372A8");
+            editor = ace.edit("code");
+        this.init_acs('python', 'monokai', editor);
+        $(function () {
+            var height = "100%";
+            $('#code').css('min-height', height);
+        });
+    },
+    methods: {
+        init_acs(language, theme, editor) {
+            editor.setTheme("ace/theme/" + theme);
+            editor.session.setMode("ace/mode/" + language);
+
+            editor.setFontSize(17);
+
+            editor.setReadOnly(false);
+
+            editor.setOption("wrap", "free");
+
+            ace.require("ace/ext/language_tools");
+            editor.setOptions({
+                enableBasicAutocompletion: true,
+                enableSnippets: true,
+                enableLiveAutocompletion: true,
+                autoScrollEditorIntoView: true
+            });
+        },
+        selectModel(e){
+            var model = e.target.value;
+            if (model==="1"){
+                this.showPub=false;
+                this.showPvr=true;
+            }
+            else if(model==="2"){
+                this.getProjectList();
+                this.showPub=true;
+                this.showPvr=false;
+
+            }else{
+                this.showPub=false;
+                this.showPvr=false;
+
+            }
+
+        },
+        getProjectList() {
+            axios.get("/getProjectList/", params = {}).then(response => {
+                //console.log(response.data);
+                // var returnlist = [];
+                this.allmodels = response.data.model_list;
+                for (var p = 0; p < response.data.project_list.length; p++) {
+                    //console.log(response.data.project_list[p]);
+                    var name = response.data.project_list[p]["projectName"];
+                    //console.log(name);
+                    returnlist.push(name);
+                }
+                this.projectlist = returnlist;
+                //console.log(this.projectList);
+        }).catch(err = > {
+                console.log('请求失败:' + err.status + ',' + err.statusText);
+        })
+
+        },
+        saveFunction(){
+            content = editor.session.getValue();
+            str = '';
+            content.trim().split('\n').forEach(function (v, i) {
+            str = str + v +'new_line';
+            });
+            var data_to_send= {
+                functioninfor: str,
+                funcrionname: this.funcrionname,
+                functiontype: this.functiontype,
+                procontain: this.procontain,
+                variname: this.variname
+            };
+             axios.post("/savefunction/", data_to_send).then(resp => {
+                    toastr.options = {
+                             closeButton: false,
+                             debug: false,
+                             progressBar: false,
+                             positionClass: "toast-top-center",
+                             onclick: null,
+                             showDuration: "300",
+                             hideDuration: "1000",
+                             timeOut: "2000",
+                             extendedTimeOut: "1000",
+                             showEasing: "swing",
+                             hideEasing: "linear",
+                             showMethod: "fadeIn",
+                             hideMethod: "fadeOut"
+                         };
+                 if(resp.data.code==0) {
+                     toastr.success(resp.data.msg);
+                 }else{
+                    toastr.error(resp.data.msg);
+                 }
+
+                }).catch(err => {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                })
+
+
+        },
+
+    }
+    }).$mount('div')
+</script>
+{% endblock %}

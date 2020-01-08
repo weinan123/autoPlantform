@@ -138,3 +138,9 @@ class projectschedule(models.Model):
     cookies = models.CharField(max_length=200, null=True, blank=True)
     timeDay = models.CharField(max_length=50, null=True, blank=True)
     timeTime = models.CharField(max_length=50, null=True, blank=True)
+class function(models.Model):
+    funname=models.CharField(max_length=50, null=True, blank=True)
+    funtype=models.IntegerField(max_length=50, null=True, blank=True)
+    funinfor = models.TextField(null=True, blank=True)
+    procontain=models.IntegerField()
+    variblename = models.CharField(max_length=50, null=True, blank=True)

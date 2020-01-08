@@ -52,7 +52,7 @@
                     </div>
                     <ul v-bind:id="'collapse'+[item.id]" v-bind:class="item.collapse">
                         <li v-for="(secitem,index) in item.secTab" >
-                            <a :href="item.url"><p v-bind:id="'p'+[item.id]+[index]" class="indextab" style="margin-top: 10px">{!secitem.name !}</p></a></li>
+                            <a :href="secitem.url"><p v-bind:id="'p'+[item.id]+[index]" class="indextab" style="margin-top: 10px">{!secitem.name !}</p></a></li>
                     </ul>
                 </li>
             </ul>
@@ -120,10 +120,10 @@ var vm1 = new Vue({
                },
                    {
                    name:"新建项目",
-                   url:""
+                   url:"/addProject/"
                },
                    {
-                   name:"项目详情",
+                   name:"debugtalk.py",
                    url:""
                }],
                 class:"glyphicon glyphicon-th-large",
@@ -195,8 +195,28 @@ var vm1 = new Vue({
                 class:"glyphicon glyphicon-folder-open",
                collapse:"collapse"
 
-           },{
+           },
+               {
                id:8,
+               name:"函数管理",
+               url:"/userPermit/",
+               secTab:[{
+                   name:"公用函数",
+                   url:"/basicfunction/"
+               },
+                   {
+                   name:"项目函数",
+                   url:"/privtefunction/"
+               },
+                   {
+                   name:"新建函数",
+                   url:"/debugtalk/"
+               }],
+                class:"glyphicon glyphicon-folder-open",
+               collapse:"collapse"
+
+           },{
+               id:9,
                name:"全局配置",
                url:"/configer/",
                secTab:[{

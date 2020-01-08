@@ -1,0 +1,77 @@
+{% extends 'newindex.html' %}
+{% block title %}<title> 首页</title> {% endblock %}
+{% block script %}
+{% endblock %}
+{% block content %}
+<div id ="basicfunction" class="content">
+    <div class="pageheader">
+            <p class="titlecss">公用函数</p>
+    </div>
+    <div class="formContent">
+        <div style="padding: 20px;height: 100%;width: 90%">
+        <table class="table table-bordered">
+  <thead>
+    <tr>
+      <th style="width: 5%" >编号</th>
+      <th style="width: 10%" >函数名</th>
+      <th style="width: 10%">引入变量名</th>
+      <th style="width: 10%">操作</th>
+    </tr>
+  </thead>
+  <tbody id="row" >
+    <tr v-for="basFun,index in bascFunList ">
+      <td >{!index+1!}</td>
+      <td >{! basFun.fields.funname !}</td>
+      <td style="color:#2372A8 ">{! basFun.fields.variblename !}</td>
+        <td >
+            <button  class="btn-local" type="submit" class="btn  btn-sm"><a v-bind:href="['/editFunction/?id='+basFun.pk]">查看编辑</a></button>
+          <button class="btn-delete" type="submit" class="btn btn-sm" >删除</button>
+        </td>
+    </tr>
+  </tbody>
+</table>
+        </div>
+
+
+    </div>
+</div>
+{% endblock %}
+{% block vuejs %}
+<script type="text/javascript">
+var vm = new Vue({
+    delimiters: ['{!', '!}'],
+    el:'#basicfunction',
+    data:function(){
+        return{
+            bascFunList:""
+        }
+    },
+    created(){
+        this.getPunFun()
+
+    },
+    mounted:function() {
+          vm1.$data.navTab[7].collapse = "";
+          $("#p80").css("color", "#2372A8");
+    },
+    methods: {
+        getPunFun(){
+               axios.get("/getfunction/", {
+                    params: {
+                        funtype: 1,
+                    }
+                    }).then(resp => {
+                        this.bascFunList=resp.data.alldata;
+
+                   console.log(resp.data)
+
+                }).catch(err => {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                })
+
+        }
+
+    }
+    }).$mount('div')
+</script>
+{% endblock %}
