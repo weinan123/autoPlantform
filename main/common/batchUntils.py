@@ -290,13 +290,13 @@ def getDefindData(datas_str):
 def checkFormat(dataValue):
     # print("1...dataValue: ",dataValue)
     if dataValue == "" or dataValue is None:
-        updataData = ""
+        updataData = None
     else:
         updataData = ""
         update_dependdata = str(dataValue).replace(" ", "")
-        for sdata in update_dependdata.split(","):
+        for sdata in update_dependdata.split(";"):
             if re.match(r'^[a-zA-Z](.*?)=(.+?)$', sdata):
-                updataData = updataData + str(sdata) + ","
+                updataData = updataData + str(sdata) + ";"
             else:
                 result = {"code": -1, "info": "输入数据格式有误"}
                 return result
@@ -320,4 +320,69 @@ def checkAssertinfo(assertinfo, respText):
         else:
             result = False
     # print("result: %s" % result)
+    return result
+
+
+def getdependCaseList(ownID_list,id):
+    dependCaseList = []
+    query = apiInfoTable.objects.filter(owningListID__in=ownID_list).values("apiID", "apiName")
+    for item in query:
+        if str(item["apiID"]) != str(id):
+            dependCaseList.append(item)
+    return dependCaseList
+
+
+def updataDatas(id, datas):
+    checkresult = checkFormat(datas)
+    # print("3...checkresult: ", checkresult)
+    if checkresult["code"] == 0:
+        updataData = checkresult["data"]
+        # print("2...updataData: ",updataData)
+        try:
+            if updataData == "":
+                apiInfoTable.objects.filter(apiID=id).update(depend_casedata=None)
+            else:
+                apiInfoTable.objects.filter(apiID=id).update(depend_casedata=updataData)
+        except Exception as e:
+            result = {"code": -1, "info": "更新失败"}
+            return result
+        result = {"code": 0, "info": "更新成功"}
+    else:
+        result = {"code": -1, "info": "依赖数据格式有误"}
+    return result
+
+
+def updatedependcase(id, depend_id):
+    apiID = int(id)
+    dependID = int(depend_id)
+    if dependID == 0:
+        apiInfoTable.objects.filter(apiID=apiID).update(depend_caseId=None)
+    else:
+        # print("1: ", apiID, dependID)
+        # 判断用例之间是否构成相互依赖
+        flag = checkDepend(apiID, dependID)
+        # print("2: ", flag)
+        if flag == True:
+            result = {"code": -1, "info": "所选接口已与当前用例建立依赖，请重新选择"}
+            return result
+        try:
+            dependcaset_id = apiInfoTable.objects.get(apiID=dependID).t_id  # 查询到依赖用例的t_id
+        except Exception as e:
+            result = {"code": -1, "info": str(e)}
+            return result
+        if dependcaset_id == "" or dependcaset_id is None:
+            t_id = "d" + str(dependID)
+            try:
+                apiInfoTable.objects.filter(apiID=dependID).update(t_id=t_id)
+                apiInfoTable.objects.filter(apiID=apiID).update(depend_caseId=t_id)
+            except Exception as e:
+                result = {"code": -1, "info": str(e)}
+                return result
+        else:
+            try:
+                apiInfoTable.objects.filter(apiID=apiID).update(depend_caseId=dependcaset_id)
+            except Exception as e:
+                result = {"code": -1, "info": str(e)}
+                return result
+    result = {"code": 0, "info": "更新成功"}
     return result

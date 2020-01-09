@@ -147,7 +147,9 @@ var vmRs = new Vue({
         searchUser: "",
     },
     created() {
-        vm1.$data.currentSort = 4;
+        vm1.$data.navTab[0].collapse = "collapse";
+        vm1.$data.navTab[5].collapse = "";
+        $("#p60").css("color", "#2372A8");
         this.getPermission();
     },
     mounted(){

@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from main import views as main
-from main import apiinfo, report
+from main import apiinfo, report, editCases
 from main import projectList, configer, usepermit, cookiesManage, caseList, projectConf
 
 urlpatterns = [
@@ -90,5 +90,8 @@ urlpatterns = [
     url(r'^projectconfiger/$', projectConf.projectconfiger),
     url(r'^getScheduleinitData/$', projectConf.getScheduleinitData),
     url(r'^saveProConf/$', projectConf.saveProConf),
+    url(r'^newOrEditCases/$', editCases.newOrEditCases),
+    url(r'^getDependList/$', editCases.getDependList),
+    url(r'^saveApiData/$', editCases.saveApiData),
 
 ]

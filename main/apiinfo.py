@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
-from models import apiInfoTable, projectList,moduleList,reports, users, hostTags, userCookies
+from models import apiInfoTable, projectList, moduleList, reports, users, hostTags, userCookies
 import time, re
 import json
 from django.http.response import JsonResponse
-from common import batchstart, batchUntils
+from common import batchstart, batchUntils, batchrun_suites
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -189,11 +189,11 @@ def batchrun(request):
         # batchrun_list = [{"sname": "批量执行", "list": idlist, "cookices": cookices}]
         try:
             batchrun_list = getbatchrunList(idlist, exeuser, environment)
-            # print("batchrun_list: ", batchrun_list)
+            print("batchrun_list: ", batchrun_list)
         except Exception as e:
             result = {"code": -1, "info": "获取执行列表失败"}
             return JsonResponse(result)
-        batchResult = batchstart.start_main(batchrun_list, environment, reflag, exeuser)
+        batchResult = batchrun_suites.start_main(batchrun_list, environment, reflag, exeuser)
         # print batchResult
         if reportflag == True:
             report_localName = batchResult["reportPath"]
@@ -205,7 +205,7 @@ def batchrun(request):
             endtime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             result_infos = {
                 "report_runName": report_runName,
-                "environment":environment,
+                "environment": environment,
                 "startTime": starttime,
                 "endTime": endtime,
                 "totalNum": totalNum,
@@ -279,6 +279,7 @@ def getapiInfos(request):
         environment = request.GET["environment"]
         try:
             query = apiInfoTable.objects.get(apiID=id)
+            proquery = projectList.objects.all().values("id", "projectName").distinct()
         except BaseException as e:
             print(" SQL Error: %s" % e)
             result = {'code': -1, 'info': 'sql error!'}
@@ -287,6 +288,9 @@ def getapiInfos(request):
             json_dict = {}
             module_list = []
             header_list = []
+            project_list = []
+            for pro in proquery:
+                project_list.append(pro)
             json_dict["id"] = query.apiID
             json_dict["name"] = query.apiName
             json_dict["creator"] = query.creator
@@ -364,6 +368,7 @@ def getapiInfos(request):
             listdata = moduleList.objects.get(id=int(query.owningListID))
             json_dict["moduleName"] = listdata.moduleName
             pid = listdata.owningListID
+            json_dict["projectID"] = pid
             json_dict["projectName"] = projectList.objects.get(id=int(pid)).projectName
             json_dict["host"] = batchUntils.getHost(int(query.host),environment)
             caseOwnID_list = []
@@ -371,7 +376,7 @@ def getapiInfos(request):
             for module in modulelist:
                 module_list.append(module.moduleName)
                 caseOwnID_list.append(module.id)
-            depend_caseList = getdependCaseList(caseOwnID_list, id)
+            depend_caseList = batchUntils.getdependCaseList(caseOwnID_list, id)
             # print "*******modulelist*******", module_list
             json_dict["depend_list"] = depend_caseList
             json_dict["depend_data"] = query.depend_casedata
@@ -381,17 +386,11 @@ def getapiInfos(request):
                 json_dict["dependCaseId_apiid"] = apiInfoTable.objects.get(t_id=query.depend_caseId).apiID  # dependCaseId_apiid表示tid不为空的用例所依赖用例的id
             else:
                 json_dict["dependCaseId_apiid"] = 0
-            result = {'code': 0, 'datas': json_dict, 'info': 'success',"module_list": module_list,"showbody":showbodyState}
+            result = {'code': 0, 'datas': json_dict, 'info': 'success',
+                      "module_list": module_list,
+                      "project_list": project_list,
+                      "showbody":showbodyState}
     return JsonResponse(result)
-
-
-def getdependCaseList(ownID_list,id):
-    dependCaseList = []
-    query = apiInfoTable.objects.filter(owningListID__in=ownID_list).values("apiID", "apiName")
-    for item in query:
-        if str(item["apiID"]) != str(id):
-            dependCaseList.append(item)
-    return dependCaseList
 
 
 def getAllCases(request):
@@ -446,6 +445,7 @@ def getAllCases(request):
             json_dict["tid_apiName"] = ""
         depend_casedata = i.depend_casedata
         json_dict["depend_data"] = depend_casedata
+        json_dict["response"] = i.response
         json_list.append(json_dict)
     result = {
         'data': json_list,
@@ -509,61 +509,6 @@ def getProjectInfos(request):
     return JsonResponse(result)
 
 
-def updataDatas(id, datas):
-    checkresult = batchUntils.checkFormat(datas)
-    # print("3...checkresult: ", checkresult)
-    if checkresult["code"] == 0:
-        updataData = checkresult["data"]
-        # print("2...updataData: ",updataData)
-        try:
-            if updataData == "":
-                apiInfoTable.objects.filter(apiID=id).update(depend_casedata=None)
-            else:
-                apiInfoTable.objects.filter(apiID=id).update(depend_casedata=updataData)
-        except Exception as e:
-            result = {"code": -1, "info": "updata failed"}
-            return result
-        result = {"code": 0, "info": "updata success"}
-    else:
-        result = {"code": -1, "info": "依赖数据格式有误"}
-    return result
-
-
-def updatedependcase(id, depend_id):
-    apiID = int(id)
-    dependID = int(depend_id)
-    if dependID == 0:
-        apiInfoTable.objects.filter(apiID=apiID).update(depend_caseId=None)
-    else:
-        # print("1: ", apiID, dependID)
-        # 判断用例之间是否构成相互依赖
-        flag = batchUntils.checkDepend(apiID, dependID)
-        # print("2: ", flag)
-        if flag == True:
-            result = {"code": -1, "info": "所选接口已与当前用例建立依赖，请重新选择"}
-            return result
-        try:
-            dependcaset_id = apiInfoTable.objects.get(apiID=dependID).t_id  # 查询到依赖用例的t_id
-        except Exception as e:
-            result = {"code": -1, "info": str(e)}
-            return result
-        if dependcaset_id == "" or dependcaset_id is None:
-            t_id = "d" + str(dependID)
-            try:
-                apiInfoTable.objects.filter(apiID=dependID).update(t_id=t_id)
-                apiInfoTable.objects.filter(apiID=apiID).update(depend_caseId=t_id)
-            except Exception as e:
-                result = {"code": -1, "info": "更新失败：" + str(e)}
-                return result
-        else:
-            try:
-                apiInfoTable.objects.filter(apiID=apiID).update(depend_caseId=dependcaset_id)
-            except Exception as e:
-                result = {"code": -1, "info": "更新失败：" + str(e)}
-                return result
-    result = {"code": 0, "info": "更新成功"}
-    return result
-
 def saveOrUpdateData(request):
     result = {}
     if request.method == 'POST':
@@ -614,10 +559,10 @@ def saveOrUpdateData(request):
             hostTags.objects.filter(id=int(hostid)).update(qa=host)
             batchUntils.getHost(hostid, environment)
         except Exception as e:
-            result = {"code": -1, "info": "更新失败：" + str(e)}
+            result = {"code": -1, "info": str(e)}
             return JsonResponse(result)
         # 更新dependcase_id
-        result = updatedependcase(id, dependcase_apiID)
+        result = batchUntils.updatedependcase(id, dependcase_apiID)
         # 更新dependData
-        result = updataDatas(id, dependData)
+        result = batchUntils.updataDatas(id, dependData)
     return JsonResponse(result)

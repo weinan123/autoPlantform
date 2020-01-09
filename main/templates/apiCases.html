@@ -31,8 +31,8 @@
             <div class="col-md-1 col-sm-2 col-xs-2" style="padding: 0px;">
                 <select class="form-control" v-model="environment">
                     <option selected value="QA">QA</option>
-                    <option  value="Stage">Stage</option>
-                    <option  value="Live">Live</option>
+                    <option value="Stage">Stage</option>
+                    <option value="Live">Live</option>
                 </select>
             </div>
         </div>
@@ -45,8 +45,9 @@
                         <th style="width: 8%">序号</th>
                         <th style="width: 12%">接口名称</th>
 {#                        <th>标记ID</th>#}
-                        <th style="width: 13%">依赖用例</th>
-                        <th style="width: 15%">依赖数据</th>
+{#                        <th style="width: 13%">依赖用例</th>#}
+{#                        <th style="width: 15%">依赖数据</th>#}
+{#                        <th style="width: 15%">上一次执行结果</th>#}
                         <th style="width: 12%">执行结果</th>
                         <th style="width: 15%">执行时间</th>
                         <th style="width: 10%">创建者</th>
@@ -62,8 +63,9 @@
                                 {! info.isCheck !}
                             </td>
                             <td style="width: 12%"> {! info.name !}</td>
-                            <td style="width: 13%">{! info.tid_apiName !}</td>
-                            <td style="width: 15%;word-break : break-all;">{! info.depend_data !}</td>
+{#                            <td style="width: 13%">{! info.tid_apiName !}</td>#}
+{#                            <td style="width: 15%;word-break : break-all;">{! info.depend_data !}</td>#}
+{#                            <td style="width: 15%;word-break : break-all;">{! info.response !}</td>#}
                             <td style="width: 12%">
                                 <p v-if="info.lastrunrslt === 0">无</p>
                                 <p v-else-if="info.lastrunrslt === 1">Pass</p>
@@ -75,15 +77,16 @@
                             </td>
                             <td style="width: 10%"> {! info.owing !}</td>
                             <td style="width: 15%">
-                                <a class="iconlink" data-toggle="modal" data-target="#viewinfos" @click="viewapi(info.id)" v-if="permission_view" href="#" title="查看编辑">
+{#                                <a class="iconlink" data-toggle="modal" data-target="#viewinfos" @click="viewapi(info.id)" v-if="permission_view" href="#" title="编辑">#}
+                                <a class="iconlink" data-toggle="modal" v-if="permission_view" @click="beforeGo()" v-bind:href="['/newOrEditCases/?id='+info.id]" title="编辑">
                                     <span class="glyphicon glyphicon-eye-open"></span>
                                 </a>
-                                <a class="iconlink" v-bind:href="['/singleInterface/editor/?id='+info.id]" title="单接口编辑">
+                                <a class="iconlink" v-bind:href="['/singleInterface/editor/?id='+info.id]" title="单接口执行">
                                     <span class="glyphicon glyphicon-edit"></span>
                                 </a>
-                                <a class="iconlink" @click="runsingle(info.id)" href="#" title="执行">
-                                    <span class="glyphicon glyphicon-expand"></span>
-                                </a>
+{#                                <a class="iconlink" @click="runsingle(info.id)" href="#" title="执行">#}
+{#                                    <span class="glyphicon glyphicon-expand"></span>#}
+{#                                </a>#}
                                 <a class="iconlink" @click="delapi(result.data[index].id)" href="#" title="删除">
                                     <span class="glyphicon glyphicon-remove-circle"></span>
                                 </a>
@@ -204,7 +207,7 @@
                          <div class="form-group form-inline">
                              <div><label class="itemCSS" style="width: 15%;text-align: right;">名称:</label>
                                  <input type="text" class="form-control" name="reportName" v-model="reportName"
-                            placeholder="请输入报告名称" style="width:70%;" @keyup="this.value=this.value.replace(/\s+/g,'')">
+                            placeholder="请输入报告名称" style="width:70%;">
                                  <span v-if="!reportName" style="color: red">*</span>
                              </div>
                          </div>
@@ -257,14 +260,60 @@
             sendData:{},
         },
         created() {
-            vm1.$data.currentSort = 3;
+            vm1.$data.navTab[0].collapse = "collapse";
+            vm1.$data.navTab[4].collapse = "";
+            $("#p50").css("color", "#2372A8");
             this.getPermission();
+            this.getPageData();
         },
         mounted(){
+            console.log("456: ", this.pageNum);
             var params = this.geturlparam();
             this.getProinfo(params);
         },
+        {#beforeDestroy () {#}
+        {#    sessionStorage.setItem("searchinfo", this.searchinfo);#}
+        {#    sessionStorage.setItem("moduleName", this.moduleName);#}
+        {#    sessionStorage.setItem("projectID", this.projectID);#}
+        {#    sessionStorage.setItem("pageNum", this.pageNum);#}
+        {#    sessionStorage.setItem("pageCount", this.pageCount);#}
+        {# },#}
         methods:{
+            getPageData(){
+                let searchinfo = sessionStorage.getItem("searchinfo");
+                let moduleName = sessionStorage.getItem("moduleName");
+                let projectID = sessionStorage.getItem("projectID");
+                let pageNum = sessionStorage.getItem("pageNum");
+                let pageCount = sessionStorage.getItem("pageCount");
+                console.log("pageData: ", pageNum,moduleName,pageCount);
+                if (searchinfo===null || searchinfo===undefined){
+                    this.searchinfo = "";
+                }else{
+                    this.searchinfo = searchinfo;
+                }
+                if (moduleName===null || moduleName===undefined){
+                    this.moduleName = "";
+                }else{
+                    this.moduleName = moduleName;
+                }
+                if (projectID===null || projectID===undefined){
+                    this.projectID = "";
+                }else{
+                    this.projectID = projectID;
+                }
+                if (pageNum===null || pageNum===undefined){
+                    this.pageNum = 1;
+                }else{
+                    this.pageNum = parseInt(pageNum);
+                }
+                if (pageCount===null || pageCount===undefined){
+                    this.pageCount = 10;
+                }else{
+                    this.pageCount = parseInt(pageCount);
+                }
+                console.log("pageData: ", this.pageNum,this.moduleName, this.pageCount);
+                sessionStorage.clear();
+            },
             getPermission(){
                 axios.get('/getPermission/',{
                     params: {
@@ -331,6 +380,8 @@
                         if(this.pageNum === 1){
                             this.disflag_left = "disabled";
                             this.disflag_right = "";
+                        }else{
+                            this.disflag_left = "";
                         }
                         spinner1.spin();
                         this.selectCheck();
@@ -364,7 +415,7 @@
                         {#console.log("**1**",resp.data.data);#}
                         this.projectList = resp.data.data.allProjList;
                         this.allModules = resp.data.data.allModuleList;
-                        this.getlist(1);
+                        this.getlist(this.pageNum);
                     }).catch(err=> {
                     console.log('请求失败:' + err.status + ',' + err.statusText);
                 });
@@ -396,7 +447,7 @@
                             {#console.log("***7***",this.moduleList);#}
                         }
                         this.moduleName = resp.data.data.moduName;
-                        this.getlist(1);
+                        this.getlist(this.pageNum);
                     }).catch(err=> {
                     console.log('请求失败:' + err.status + ',' + err.statusText);
                 });
@@ -750,7 +801,8 @@
                     })
             },
             addPage(num){
-                this.pageNum = num +1;
+                console.log("pageNUm1: ", this.pageNum);
+                this.pageNum = parseInt(num) +1;
                 if(this.pageNum > 1){
                     this.disflag_left = "";
                 }
@@ -760,6 +812,7 @@
                 }
                 this.result = "";
                 this.dlist = [];
+                console.log("pageNUm2: ", this.pageNum);
                 this.getlist(this.pageNum);
             },
             cutPage(num){
@@ -858,6 +911,15 @@
                     "user":vm1.$data.username,
                 };
             },
+            beforeGo(){
+                sessionStorage.setItem("searchinfo", this.searchinfo);
+                sessionStorage.setItem("moduleName", this.moduleName);
+                sessionStorage.setItem("projectID", this.projectID);
+                sessionStorage.setItem("pageNum", this.pageNum);
+                sessionStorage.setItem("pageCount", this.pageCount);
+                console.log("11111111: ", sessionStorage["pageNum"]);
+                {#window.location.href = "/newOrEditCases/";#}
+             },
         }
     }).$mount('#apiCases');
     </script>
