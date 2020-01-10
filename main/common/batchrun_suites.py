@@ -86,13 +86,13 @@ def gen_testcases(run_list, path, environment):
             # 获取单个api
             testcontent["test"], param_dict = get_testcontent(api, environment)
             filecontent.append(testcontent)
-            if len(dict(param_dict).keys()) != 0:
-                parameters_list.append(param_dict)
+            # if len(dict(param_dict).keys()) != 0:
+            #     parameters_list.append(param_dict)
         t = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
         case = os.path.join(path, name + "_" + t + ".json")
-        if len(parameters_list) != 0:
-            filecontent[0]["config"].update({"parameters": parameters_list})
-        print("filecontent: ", filecontent)
+        # if len(parameters_list) != 0:
+        #     filecontent[0]["config"].update({"parameters": parameters_list})
+        # print("filecontent: ", filecontent)
         with io.open(case, 'w', encoding='utf-8') as stream:
             stream.write(json.dumps(filecontent).decode('raw_unicode_escape'))
 
@@ -155,9 +155,15 @@ def get_testcontent(api_id, environment):
             "headers": headers_dict,
             "json": send_body_dict,
         },
-        "extract": extract_info,
-        "validate": validate_info
+        "validate": validate_info,
     }
+    if len(extract_info) > 0:
+        result["extract"] = extract_info
+    params_list = []
+    if len(param_dict.keys()) > 0:
+        params_list.append(param_dict)
+    if len(params_list) > 0:
+        result["parameters"] = params_list
     return result, param_dict
 
 
