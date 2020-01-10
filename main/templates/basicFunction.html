@@ -24,8 +24,8 @@
       <td >{! basFun.fields.funname !}</td>
       <td style="color:#2372A8 ">{! basFun.fields.variblename !}</td>
         <td >
-            <button  class="btn-local" type="submit" class="btn  btn-sm"><a v-bind:href="['/editFunction/?id='+basFun.pk]">查看编辑</a></button>
-          <button class="btn-delete" type="submit" class="btn btn-sm" >删除</button>
+            <button  class="btn-local" type="submit" class="btn  btn-sm"><a style="color: white" v-bind:href="['/editFunction/?id='+basFun.pk]">查看编辑</a></button>
+          <button class="btn-delete" type="submit" class="btn btn-sm" @click="delfun(basFun.pk)" >删除</button>
         </td>
     </tr>
   </tbody>
@@ -56,12 +56,29 @@ var vm = new Vue({
     },
     methods: {
         getPunFun(){
+
                axios.get("/getfunction/", {
                     params: {
                         funtype: 1,
                     }
                     }).then(resp => {
                         this.bascFunList=resp.data.alldata;
+
+                   console.log(resp.data)
+
+                }).catch(err => {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                })
+
+        },
+        delfun(id){
+             data_to_send = {
+              id: id,
+            };
+             axios.post("/delfunction/", data_to_send
+                    ).then(resp => {
+                        this.getPunFun();
+
 
                    console.log(resp.data)
 

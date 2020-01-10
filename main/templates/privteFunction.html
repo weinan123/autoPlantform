@@ -5,7 +5,7 @@
 {% block content %}
 <div id ="privtefunction" class="content">
     <div class="pageheader">
-            <p class="titlecss">私有函数</p>
+            <p class="titlecss">项目函数</p>
     </div>
     <div class="formContent">
         <div style="padding: 20px;height: 100%;width: 90%">
@@ -19,13 +19,13 @@
     </tr>
   </thead>
   <tbody id="row" >
-    <tr>
-      <td >1</td>
-      <td >有鱼股票项目函数</td>
-      <td style="color:#2372A8 ">_random(10)</td>
+    <tr v-for="basFun,index in bascFunList ">
+      <td >{!index+1!}</td>
+      <td >{! basFun.funname !}</td>
+      <td >{! basFun.projectname !}</td>
         <td >
-            <button  class="btn-local" type="submit" class="btn  btn-sm" >查看编辑</button>
-          <button class="btn-delete" type="submit" class="btn btn-sm" >删除</button>
+            <button  class="btn-local" type="submit" class="btn  btn-sm"><a style="color: white" v-bind:href="['/editFunction/?id='+basFun.id]">查看编辑</a></button>
+          <button class="btn-delete" type="submit" class="btn btn-sm" @click="delfun(basFun.id)">删除</button>
         </td>
     </tr>
   </tbody>
@@ -43,10 +43,12 @@ var vm = new Vue({
     el:'#privtefunction',
     data:function(){
         return{
+            bascFunList:""
 
         }
     },
     created(){
+        this.getPunFun()
 
     },
     mounted:function() {
@@ -54,6 +56,37 @@ var vm = new Vue({
             $("#p81").css("color", "#2372A8");
     },
     methods: {
+         getPunFun(){
+               axios.get("/getfunction/", {
+                    params: {
+                        funtype: 2,
+                    }
+                    }).then(resp => {
+                        this.bascFunList=resp.data.alldata;
+
+                   console.log(resp.data)
+
+                }).catch(err => {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                })
+
+        },
+         delfun(id){
+             data_to_send = {
+              id: id,
+            };
+             axios.post("/delfunction/", data_to_send
+                    ).then(resp => {
+                        this.getPunFun();
+
+
+                   console.log(resp.data)
+
+                }).catch(err => {
+                    console.log('请求失败:' + err.status + ',' + err.statusText);
+                })
+
+        }
 
     }
     }).$mount('div')

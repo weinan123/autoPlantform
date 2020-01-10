@@ -96,7 +96,9 @@ urlpatterns = [
     url(r'^savefunction/$', functionsInfor.savefunction),
     url(r'^getfunction/$', functionsInfor.getfunction),
     url(r'^editFunction/$', functionsInfor.editFunction),
-    #url(r'^/editFunction/(?P<int>\d+)/$', functionsInfor.editFunction),
+    url(r'^editFunctionData/$', functionsInfor.editFunctionData),
+    url(r'^delfunction/$', functionsInfor.delfunction),
+
 
 
 

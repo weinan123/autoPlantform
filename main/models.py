@@ -140,7 +140,7 @@ class projectschedule(models.Model):
     timeTime = models.CharField(max_length=50, null=True, blank=True)
 class function(models.Model):
     funname=models.CharField(max_length=50, null=True, blank=True)
-    funtype=models.IntegerField(max_length=50, null=True, blank=True)
+    funtype=models.IntegerField()
     funinfor = models.TextField(null=True, blank=True)
     procontain=models.IntegerField()
     variblename = models.CharField(max_length=50, null=True, blank=True)
