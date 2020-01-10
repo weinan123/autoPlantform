@@ -1,8 +1,13 @@
 #apiCases{
     background-color: #f7f7f7;
     float: left;
-    width: 88%;
-    margin-left: 260px;
+    width: 90%;
+}
+
+#content{
+    background-color: #f7f7f7;
+    float: left;
+    width: 90%;
 }
 
 #navSelBar{
@@ -14,6 +19,18 @@
     background-color: #ffffff;
     padding:15px;
 }
+
+
+#neweditCases{
+    width:85%;
+    margin-left: 37px;
+    margin-right: 37px;
+    margin-bottom:0px;
+    margin-top:15px;
+    background-color: #ffffff;
+    padding:15px;
+}
+
 #search{
     padding-left: 19px;
 }
@@ -47,8 +64,7 @@
 .reportsPage{
     background-color: #f7f7f7;
     float: left;
-    width: 88%;
-    margin-left: 260px;
+    width: 90%;
 }
 .pagetitle{
     background-color: #FFFFFF;

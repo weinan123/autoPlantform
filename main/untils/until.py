@@ -26,7 +26,8 @@ def mul_bodyData(bodyinfor):
         showflag = bodyinfor["showflag"]
         if bodyinfor["showflag"] == 3:
             if str(paramsData[0]["paramValue"]) != "" or str(paramsData[0]["paramValue"]) != "{}":
-                body = json.loads(paramsData[0]["paramValue"])
+                # body = json.loads(paramsData[0]["paramValue"])
+                body = paramsData[0]["paramValue"]
             else:
                 body = {}
         else:

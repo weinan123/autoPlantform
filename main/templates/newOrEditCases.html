@@ -1,0 +1,385 @@
+{% extends 'newindex.html' %}
+{% block title %}<title> 测试用例集管理</title> {% endblock %}
+
+{% block content %}
+    <div id="content">
+        <div class="pageheader">
+            <p v-if="titleflag" class="titlecss">编辑用例</p>
+            <p v-else class="titlecss">新建用例</p>
+        </div>
+        <div id="neweditCases">
+{#            <div>#}
+{#                <label class="itemCSS1" style="width: 10%;text-align: right;">环境:</label>#}
+{#                <div class="itemCSS" style="width:15%;">#}
+{#                    <select class="form-control" v-model="environment">#}
+{#                        <option selected value="QA">QA</option>#}
+{#                        <option  value="Stage">Stage</option>#}
+{#                        <option  value="Live">Live</option>#}
+{#                    </select>#}
+{#                </div>#}
+{#            </div>#}
+            <div>
+                <label class="itemCSS1" style="width: 10%;text-align: right;">接口名称:</label>
+                <span class="itemCSS" style="width:35%;word-break:break-all;">
+                    <input type="text" class="form-control" v-model="viewapiInfos.name" style="width: 100%"/>
+                </span>
+                <span v-if="!viewapiInfos.name" style="color: red">*</span>
+            </div>
+            <div>
+                <label class="itemCSS1" style="width: 10%;text-align: right;">所属项目:</label>
+                <div class="itemCSS" style="width:35%;">
+                    <select class="form-control" v-model="projectID" @change="selectPro($event)" v-bind:disabled="titleflag">
+                        <option selected value="">请选择</option>
+                        <option  v-for="item in projectList" :value="item.id">{! item.projectName !}</option>
+                    </select>
+                </div>
+                <label class="itemCSS1" style="width: 10%;text-align: right;">所属模块:</label>
+                <div class="itemCSS" style="width:35%;">
+                    <select class="form-control" v-model="moduleName" v-bind:disabled="titleflag">
+                        <option selected value="">请选择</option>
+                        <option  v-for="item in moduleList" :value="item">{! item !}</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="itemCSS1" style="width: 10%;text-align: right;">method:</label>
+                <span class="itemCSS" style="width:10%;">
+                    <select class="form-control" v-model="viewapiInfos.method">
+                        <option value="POST">POST</option>
+                        <option value="GET">GET</option>
+                    </select>
+                </span>
+            </div>
+            <div>
+                <label class="itemCSS1" style="width: 10%;text-align: right;">host:</label>
+                <span class="itemCSS" style="width:35%;">
+                    <input type="text" class="form-control" v-model="viewapiInfos.host" style="width: 100%"/>
+                </span>
+                <span v-if="!viewapiInfos.host" style="color: red">*</span>
+                <label class="itemCSS1" style="width: 10%;text-align: right;">url:</label>
+                <span class="itemCSS" style="width:35%;word-break:break-all;">
+                    <input type="text" class="form-control" v-model="viewapiInfos.url" style="width: 100%"/>
+                </span>
+                <span v-if="!viewapiInfos.url" style="color: red">*</span>
+            </div>
+            <div>
+                <label class="itemCSS1" style="width: 10%;text-align: right;">前提用例:</label>
+                <span class="itemCSS" style="width:35%;">
+                    <select class="form-control" style="width: 100%" v-model="viewapiInfos.dependCaseId_apiid">
+                        <option selected value=0>无</option>
+                        <option v-for="item in viewapiInfos.depend_list" :value="item.apiID">{! item.apiName !}</option>
+                    </select>
+                </span>
+            </div>
+            <div>
+                <label class="itemCSS" style="width: 10%;text-align: right;">header:</label>
+                <textarea id="responseCSS" v-model="headers" placeholder='参照形式:{"a":"bb"}'></textarea>
+                <label class="itemCSS" style="width: 10%;text-align: right;">body:</label>
+                <textarea id="responseCSS" v-model="bodys" placeholder='参照形式:{"a":"bb"}'></textarea>
+            </div>
+            <div>
+                <label class="itemCSS" style="width: 10%;text-align: right;">参数提取/定义:</label>
+                <textarea id="responseCSS" v-model="viewapiInfos.depend_data" placeholder='参照形式:a=$code;b=$data.msg 多个参数以;分割'></textarea>
+                <label class="itemCSS" style="width: 10%;text-align: right;">assert:</label>
+                <textarea id="responseCSS" v-model="viewapiInfos.assert">{! viewapiInfos.assert !}</textarea>
+             </div>
+            <div v-if="titleflag">
+                <label class="itemCSS" style="width: 10%;text-align: right;">上一次返回:</label>
+                <textarea id="responseCSS" readonly>{! responseText !}</textarea>
+            </div>
+            <div style="text-align: center;margin-top: 25px;margin-bottom: 10px;">
+                <button class="btn btn-primary" v-if="titleflag" style="background: rgba(35, 114, 168, 0.15); border: 1px solid rgba(35, 114, 168, 0.15); color: rgb(35, 114, 168);">
+                     <a v-bind:href="['/apiCases/']">返回</a>
+                </button>
+                <input type="submit" value="提交" class="btn btn-primary" @click="saveinfos()"
+                       :disabled="!viewapiInfos.name || !viewapiInfos.host || !viewapiInfos.url">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block vuejs %}
+    <script type="text/javascript">
+    var vm3 = new Vue({
+        delimiters: ['{!', '!}'],
+        el: '#content',
+        data: function () {
+            return {
+                viewapiInfos: {"method": "GET",
+                        "dependCaseId_apiid": 0,
+                        "depend_data": "",
+                        "assert" : ""
+                    },
+                headers: "",
+                bodys: "",
+                environment: "QA",
+                titleflag: false,
+                projectID: "",
+                moduleName: "",
+                projectList: [],
+                moduleList: [],
+                projectName: "",
+                sendData: {},
+                responseText: "",
+            }
+        },
+        created() {
+            vm1.$data.navTab[0].collapse = "collapse";
+            vm1.$data.navTab[4].collapse = "";
+            $("#p51").css("color", "#2372A8");
+        },
+        mounted(){
+            let id = this.getparam("id");
+            if(id){
+                this.titleflag = true;
+                this.getapiinfo(id);
+            }else{
+                this.getProinfo(id);
+            }
+        },
+        methods: {
+            getapiinfo(id){
+                var target = document.getElementById("content");
+                var spinner1 = Spinner({top:"2",left:"4"}).spin(target);
+                this.viewapiInfos = "";
+                this.headers = "";
+                this.bodys = "";
+                this.responseText = "";
+                axios.get('/viewapiInfos/', {
+                    params: {
+                        apiid: id,
+                        environment: this.environment,
+                    },
+                    })
+                    .then(resp => {
+                        this.viewapiInfos = resp.data.datas;
+                        let viewHeaders = resp.data.datas.header;
+                        let viewBodys = resp.data.datas.body;
+                        let showflag = parseInt(resp.data.showbody);
+                        this.headers = "";
+                        let header_data={};
+                        if(viewHeaders.length > 0){
+                            for(let i=0;i<viewHeaders.length;i++){
+                                header_data[viewHeaders[i]["type"]] = viewHeaders[i]["value"];
+                            }
+                        }
+                        this.headers = JSON.stringify(header_data);
+                        this.bodys = "";
+                        let body_data={};
+                        if(viewBodys.length > 0){
+                            if(showflag === 3){
+                                this.bodys = viewBodys[0].value;
+                            }else{
+                                for(let i=0;i<viewBodys.length;i++){
+                                    body_data[viewBodys[i]["name"]] = viewBodys[i].value;
+                                }
+                                this.bodys = JSON.stringify(body_data);
+                            }
+                        }else{
+                            this.bodys = JSON.stringify(body_data);
+                        }
+                        this.projectList = resp.data.project_list;
+                        this.moduleList = resp.data.module_list;
+                        this.projectID = resp.data.datas.projectID;
+                        this.moduleName = resp.data.datas.moduleName;
+                        try{
+                            this.responseText = JSON.parse(resp.data.datas.response);
+                        }catch(e){
+                            this.responseText = resp.data.datas.response;
+                        }
+                        spinner1.spin();
+                    }).catch(err => {
+                        console.log('请求失败:' + err.status + ',' + err.statusText);
+                    })
+            },
+            getparam(str){
+                var argsstr = location.search.substr(1);
+                var param={};
+                console.log(argsstr);
+                if(argsstr !== ""){
+                    var strs = argsstr.split("&");
+                    for(var i = 0; i < strs.length; i++) {
+                         param[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+                    }
+                }
+                return param[str];
+            },
+            getProinfo(params){
+                if(params === undefined){
+                    axios.get('/projectInfos/')
+                    .then(resp =>{
+                        {#console.log("**1**",resp.data.data);#}
+                        this.projectList = resp.data.data.allProjList;
+                        this.allModules = resp.data.data.allModuleList;
+                    }).catch(err=> {
+                        console.log('请求失败:' + err.status + ',' + err.statusText);
+                    });
+                }else{
+                    axios.get('/projectInfos/',{
+                        params: {
+                                    pid: params,
+                                }
+                    })
+                    .then(resp =>{
+                        console.log("**2**",resp.data.data);
+                        this.moduleList = [];
+                        this.projectList = [];
+                        this.projectList = resp.data.data.allProjList;
+                        this.allModules = resp.data.data.allModuleList;
+                        this.projectName = resp.data.data.projName;
+                        for(let i=0;i<this.projectList.length;i++){
+                            let pname = this.projectList[i]["projectName"];
+                            if(pname === this.projectName){
+                                this.projectID = this.projectList[i]["id"];
+                            }
+                        }
+                        let allModules = this.allModules;
+                        for(let q=0;q<allModules.length;q++){
+                            let pid = allModules[q]["owningListID"];
+                            if(this.projectID === pid) {
+                                this.moduleList.push(allModules[q]["moduleName"]);
+                            }
+                            {#console.log("***7***",this.moduleList);#}
+                        }
+                        this.moduleName = resp.data.data.moduName;
+                    }).catch(err=> {
+                        console.log('请求失败:' + err.status + ',' + err.statusText);
+                    });
+                }
+
+            },
+            selectPro(e){
+                let selProj = e.target.value;
+                let allModules = this.allModules;
+                if(this.moduleList.length!==0){
+                    this.moduleList = [];
+                    this.moduleName = "";
+                    this.viewapiInfos.dependCaseId_apiid = 0;
+                    this.viewapiInfos.depend_list = [];
+                }
+                for(let q=0;q<allModules.length;q++){
+                    let pid = allModules[q]["owningListID"];
+                    if(selProj.toString()===pid.toString()) {
+                        if(allModules[q]["moduleName"] !== ""){
+                            this.moduleList.push(allModules[q]["moduleName"]);
+                        }
+
+                    }
+                }
+                this.getdepend_list(selProj);
+            },
+            getdepend_list(pid){
+                console.log("****1*****", pid);
+                if(pid === ""){
+                    this.viewapiInfos.dependCaseId_apiid = 0;
+                    this.viewapiInfos.depend_list = [];
+                }else{
+                    axios.get('/getDependList/', {
+                    params: {
+                                    pid: pid,
+                                }
+                    })
+                    .then(resp =>{
+                        console.log("****2*****", resp.data);
+                        this.viewapiInfos.dependCaseId_apiid = 0;
+                        this.viewapiInfos.depend_list = resp.data.depend_caseList;
+                    })
+                    .catch(err=> {
+                        console.log('请求失败:' + err.status + ',' + err.statusText);
+                    });
+                }
+            },
+            saveinfos(){
+                toastr.options = {
+                                    closeButton: false,
+                                    debug: false,
+                                    progressBar: false,
+                                    positionClass: "toast-top-center",
+                                    onclick: null,
+                                    showDuration: "300",
+                                    hideDuration: "1000",
+                                    timeOut: "2000",
+                                    extendedTimeOut: "1000",
+                                    showEasing: "swing",
+                                    hideEasing: "linear",
+                                    showMethod: "fadeIn",
+                                    hideMethod: "fadeOut"
+                    };
+                var dependdata = this.viewapiInfos.depend_data;
+                if(dependdata === null || dependdata === undefined){
+                    dependdata = ""
+                }
+                var pattern = new RegExp("[`~!@#^&*()|{}':<>/?！￥……（）——【】‘；：”“。，、？]", 'g');
+                console.log(dependdata);
+                var rs = dependdata.replace(pattern, '');
+                console.log("1");
+                if(rs.length === dependdata.length) {
+                    console.log(this.titleflag);
+                    if(this.titleflag){
+                        let id = this.getparam("id");
+                        this.getSendData();
+                        {#console.log("sendData: ", this.sendData);#}
+                        axios.post('/saveOrUpdateData/', {
+                            params: {
+                                apiid: id,
+                                sendData: this.sendData,
+                            },
+                        })
+                            .then(resp => {
+                                var code = resp.data.code;
+                                var info = resp.data.info;
+                                if (code === 0) {
+                                    toastr.success(info);
+                                } else {
+                                    alert("更新失败：" + info);
+                                }
+                            })
+                            .catch(err => {
+                                console.log('请求失败:' + err.status + ',' + err.statusText);
+                            })
+                    }else{
+                        this.getSendData();
+                        axios.post('/saveApiData/', {
+                            params: {
+                                sendData: this.sendData,
+                            },
+                        })
+                            .then(resp => {
+                                var code = resp.data.code;
+                                var info = resp.data.info;
+                                if (code === 0) {
+                                    toastr.success(info);
+                                } else {
+                                    alert(info);
+                                }
+                            })
+                            .catch(err => {
+                                console.log('请求失败:' + err.status + ',' + err.statusText);
+                            })
+                    }
+                }else{
+                    alert("依赖参数不能包含特殊字符：`~!@#^&*()|':'<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？");
+                }
+            },
+            getSendData(){
+                this.sendData = {
+                    "apiName":this.viewapiInfos.name,
+                    "method":this.viewapiInfos.method,
+                    "host":this.viewapiInfos.host,
+                    "url":this.viewapiInfos.url,
+                    "dependcase_apiID":this.viewapiInfos.dependCaseId_apiid,
+                    "dependData":this.viewapiInfos.depend_data,
+                    "header":this.headers,
+                    "bodys":this.bodys,
+                    "assert":this.viewapiInfos.assert,
+                    "environment":this.environment,
+                    "user":vm1.$data.username,
+                    "projectID":this.projectID,
+                    "moduleName":this.moduleName,
+                };
+            },
+
+        }
+    }).$mount('#content');
+    </script>
+{% endblock %}

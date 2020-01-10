@@ -43,7 +43,7 @@
             <ul style=" list-style: none;padding-inline-start: 14px;" >
                 <li v-for="(item,index) in navTab" :key="index" class="row"
                     style="height:100%;width:100%;cursor:pointer;">
-                    {% comment %}<div :class="{'selected':currentSort ==index}" >{% endcomment %}
+                    {% comment %}<div :class="{'selected':currentSort ==index}" ></div>{% endcomment %}
                     <div class="selected" >
                         <p  class="indextab" style="margin-top: 10px;float: left;width: 85%">{!item.name !}</p>
                         <span  data-toggle="collapse" v-bind:data-target="'#collapse'+[item.id]"
@@ -52,6 +52,7 @@
                     </div>
                     <ul v-bind:id="'collapse'+[item.id]" v-bind:class="item.collapse">
                         <li v-for="(secitem,index) in item.secTab" >
+
                             <a :href="secitem.url"><p v-bind:id="'p'+[item.id]+[index]" class="indextab" style="margin-top: 10px">{!secitem.name !}</p></a></li>
                     </ul>
                 </li>
@@ -66,7 +67,9 @@
     <div id="right" style="margin-left: 10%;">
         <div style="width: 100%;height: 50px;background: #05314E;position: fixed">
             <button class="btn-local" style="margin-top: 10px;margin-right: 20px;margin-left: 20px;">新增项目</button>
-            <button class="btn-local" style="margin-top: 10px;margin-right: 20px">新增用例</button>
+            <button class="btn-local" style="margin-top: 10px;margin-right: 20px">
+                <a href="/newOrEditCases/" style="color: #FFFFFF">新增用例</a>
+            </button>
             <button class="btn-local" style="margin-top: 10px;margin-right: 20px">新增计划</button>
             <button class="btn-local" style="margin-top: 10px;margin-right: 20px">返回首页</button>
             <button class="btn-local" style="margin-top: 10px;margin-right: 20px">性能测试</button>
@@ -154,14 +157,14 @@ var vm1 = new Vue({
                url:"/apiCases/",
                secTab:[{
                    name:"用例列表",
-                   url:""
+                   url:"/apiCases/"
                },
                    {
-                   name:"新建用例",
-                   url:""
+                   name:"新建/编辑用例",
+                   url:"/newOrEditCases/"
                },
                   ],
-                class:"glyphicon glyphicon-folder-open",
+               class:"glyphicon glyphicon-folder-open",
                collapse:"collapse"
 
            },{
