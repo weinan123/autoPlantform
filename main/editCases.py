@@ -65,6 +65,7 @@ def saveApiData(request):
         if header == "" or header is None:
             header = "{}"
         assertinfo = data["assert"]
+        assert_list = json.dumps(data["assert_list"])
         userName = data["user"]
         try:
             hostqa = str(host)
@@ -93,7 +94,7 @@ def saveApiData(request):
                 return JsonResponse(result)
             apiInfoTable.objects.get_or_create(method=method, headers=header, host=hostid, url=url,
                                                body=body, depend_caseId=depend_t_id,
-                                               assertinfo=assertinfo, apiName=apiName,
+                                               assertinfo=assert_list, apiName=apiName,
                                                owningListID=int(mid), creator=userName, depend_casedata=updataData)
             result = {
                 "code": 0,

@@ -33,7 +33,7 @@
                         <option  v-for="item in projectList" :value="item.id">{! item.projectName !}</option>
                     </select>
                 </div>
-                <label class="itemCSS1" style="width: 10%;text-align: right;">所属模块:</label>
+                <label class="itemCSS1" style="width: 10%;text-align: right;"> 所属模块:</label>
                 <div class="itemCSS" style="width:35%;">
                     <select class="form-control" v-model="moduleName" v-bind:disabled="titleflag">
                         <option selected value="">请选择</option>
@@ -74,25 +74,48 @@
             <div>
                 <label class="itemCSS" style="width: 10%;text-align: right;">header:</label>
                 <textarea id="responseCSS" v-model="headers" placeholder='参照形式:{"a":"bb"}'></textarea>
-                <label class="itemCSS" style="width: 10%;text-align: right;">body:</label>
+                <label class="itemCSS" style="width: 10%;text-align: right;"> body:</label>
                 <textarea id="responseCSS" v-model="bodys" placeholder='参照形式:{"a":"bb"}'></textarea>
             </div>
             <div>
-                <label class="itemCSS" style="width: 10%;text-align: right;">参数提取/定义:</label>
+                <label class="itemCSS" style="width: 10%;text-align: right;">参数提取:</label>
                 <textarea id="responseCSS" v-model="viewapiInfos.depend_data" placeholder='参照形式:a=$code;b=$data.msg 多个参数以;分割'></textarea>
-                <label class="itemCSS" style="width: 10%;text-align: right;">assert:</label>
-                <textarea id="responseCSS" v-model="viewapiInfos.assert">{! viewapiInfos.assert !}</textarea>
-             </div>
-            <div v-if="titleflag">
-                <label class="itemCSS" style="width: 10%;text-align: right;">上一次返回:</label>
-                <textarea id="responseCSS" readonly>{! responseText !}</textarea>
+{#                <label class="itemCSS" style="width: 10%;text-align: right;">assert:</label>#}
+{#                <textarea id="responseCSS" v-model="viewapiInfos.assert">{! viewapiInfos.assert !}</textarea>#}
+                <span v-if="titleflag">
+                    <label class="itemCSS" style="width: 10%;text-align: right;">返回结果:</label>
+                    <textarea id="responseCSS" readonly>{! responseText !}</textarea>
+                </span>
+            </div>
+
+            <div>
+                <label class="itemCSS" style="width: 10%;text-align: right;">断言条件:</label>
+                <span class="itemCSS" style="width:65%;">
+                <table class="table table-bordered" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>校验项</th>
+                            <th>预期值</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody >
+                        <tr v-for="itemVal,index in assertVals">
+                            <td><input type="text" class="form-control" id="item" v-model="itemVal.item">{{ itemVal.item }}</td>
+                            <td><input type="text" class="form-control" id="item_value" v-model="itemVal.item_value">{{ itemVal.item_value }}</td>
+                            <td><button type="button" class="btn-local" @click="insertTable()">增加</button>
+                                <button type="button" class="btn-delete" @click="deleteItem(index)">删除</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                </span>
             </div>
             <div style="text-align: center;margin-top: 25px;margin-bottom: 10px;">
                 <button class="btn btn-primary" v-if="titleflag" style="background: rgba(35, 114, 168, 0.15); border: 1px solid rgba(35, 114, 168, 0.15); color: rgb(35, 114, 168);">
                      <a v-bind:href="['/apiCases/']">返回</a>
                 </button>
                 <input type="submit" value="提交" class="btn btn-primary" @click="saveinfos()"
-                       :disabled="!viewapiInfos.name || !viewapiInfos.host || !viewapiInfos.url">
+                       :disabled="!viewapiInfos.name || !viewapiInfos.host || !viewapiInfos.url || !assertVals[0].item_value">
             </div>
         </div>
     </div>
@@ -121,6 +144,7 @@
                 projectName: "",
                 sendData: {},
                 responseText: "",
+                assertVals: [{item:"status_code", item_value:200}],
             }
         },
         created() {
@@ -157,6 +181,8 @@
                         let viewBodys = resp.data.datas.body;
                         let showflag = parseInt(resp.data.showbody);
                         this.headers = "";
+                        this.assertVals = this.viewapiInfos.assert;
+                        {#console.log(this.assertVals);#}
                         let header_data={};
                         if(viewHeaders.length > 0){
                             for(let i=0;i<viewHeaders.length;i++){
@@ -372,11 +398,25 @@
                     "header":this.headers,
                     "bodys":this.bodys,
                     "assert":this.viewapiInfos.assert,
+                    "assert_list":this.assertVals,
                     "environment":this.environment,
                     "user":vm1.$data.username,
                     "projectID":this.projectID,
                     "moduleName":this.moduleName,
                 };
+            },
+            insertTable(){
+                var newgetVals={
+                    item:"",
+                    item_value:""
+                };
+                this.assertVals.push(newgetVals);
+            },
+            deleteItem(index) {
+                var lengthItem = this.assertVals.length;
+                if (lengthItem > 1) {
+                    this.assertVals.splice(index, 1);
+                }
             },
 
         }

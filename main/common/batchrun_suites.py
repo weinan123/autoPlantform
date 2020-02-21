@@ -62,21 +62,25 @@ def main_hrun(testset_path, report_name, reportflag):
 
 
 def gen_testcases(run_list, path, environment):
-    # [{"sname": "有鱼股票", "list": [1,2,3], "cookices": cookices}]
+    # [{"sname": "有鱼股票", "list": [1,2,3], "cookices": cookices, "variables": variables, "publicHeader", publicHeader}]
     for test in run_list:
-        print("=====1=====", test)
+        # print("=====1=====", test)
         parameters_list = []
         name = str(test["sname"]).decode("utf-8")
         apilist = test["list"]
         cookices = test["cookices"]
         filecontent = []
+        variables = test["variables"]     # 定义全局的变量，作用域为整个用例
+        publicHeader = test["publicHeader"]   # 获取到的公用头部信息，包括base_url,headers
+        requestContent = {
+                    "cookies": cookices
+                }
+        requestContent.update(publicHeader)
         configcontent = {
             "config": {
                 "name": name,
-                "variables": {},
-                "request": {
-                    "cookies": cookices
-                }
+                "variables": variables,
+                "request": requestContent
             }
         }
         # 加入全局config
@@ -131,7 +135,8 @@ def get_testcontent(api_id, environment):
     send_body_dict = {}
     if len(send_body) != 0:
         send_body_dict = send_body
-    assertinfo = query.assertinfo
+    # assertinfo = query.assertinfo
+    assert_list = json.loads(query.assertinfo)
     apiname = str(query.apiName).decode("utf-8")
     extract_info = []
     dependData_str = query.depend_casedata
@@ -143,10 +148,14 @@ def get_testcontent(api_id, environment):
     validate_info = [
         {"lt": ["status_code", 300]},
     ]
-    if len(assertinfo) != 0:
-        assert_dict = getAssertDict(str(assertinfo))
-        for i, j in assert_dict.items():
-            validate_info.append({"str_eq": [str("content." + i), str(j)]})
+    if len(assert_list) > 0:
+        for info in assert_list:
+            validate_info.append({"str_eq": [info["item"], info["item_value"]]})
+
+    # if len(assertinfo) != 0:
+    #     assert_dict = getAssertDict(str(assertinfo))
+    #     for i, j in assert_dict.items():
+    #         validate_info.append({"str_eq": [str("content." + i), str(j)]})
     result = {
         "name": apiname,
         "request": {

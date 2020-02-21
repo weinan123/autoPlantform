@@ -254,7 +254,7 @@ def getbatchrunList(idlist, exeuser, environment):
             continue
         else:
             cookies = getCookies(environment, exeuser, pm["projectName"])
-            batchrun_dict = {"sname": str(pm["projectName"]), "list": list, "cookices": cookies}
+            batchrun_dict = {"sname": str(pm["projectName"]), "list": list, "cookices": cookies, "variables": {}, "publicHeader": {}}
             batchrun_list.append(batchrun_dict)
     return batchrun_list
 
@@ -362,7 +362,10 @@ def getapiInfos(request):
             else:
                 json_dict["body"] = []
             json_dict["url"] = query.url
-            json_dict["assert"] = query.assertinfo
+            if str(query.assertinfo) != "" and str(query.assertinfo) is not None:
+                json_dict["assert"] = json.loads(query.assertinfo)
+            else:
+                json_dict["assert"] = [{"item": "status_code", "item_value": 200}]
             json_dict["listid"] = query.owningListID
             json_dict["response"] = query.response
             listdata = moduleList.objects.get(id=int(query.owningListID))
@@ -550,12 +553,14 @@ def saveOrUpdateData(request):
         if header == "" or header is None:
             header = "{}"
         assertinfo = data["assert"]
+        assert_list = json.dumps(data["assert_list"])
+        # print("11111111111111111:", assert_list, type(assert_list))
         environment = data["environment"]
         userName = data["user"]
         hostid = apiInfoTable.objects.get(apiID=id).host
         try:
             apiInfoTable.objects.filter(apiID=id).update(apiName=apiName, method=method, url=url, headers=header,
-                                                         body=body, assertinfo=assertinfo)
+                                                         body=body, assertinfo=assert_list)
             hostTags.objects.filter(id=int(hostid)).update(qa=host)
             batchUntils.getHost(hostid, environment)
         except Exception as e:

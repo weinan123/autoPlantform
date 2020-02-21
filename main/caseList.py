@@ -353,6 +353,18 @@ def caseBatchRun(request):
         reportflag = req['reportflag']
         exeuser = request.session.get('username')
         starttime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        variableList = req["pubvariable"]
+        heanderList = req["pubHeader"]
+        variables = {}
+        publicHeader = {}
+        print heanderList
+        print variableList
+        for i in heanderList:
+            publicHeader[str(i["name"])] = i["value"]
+        for j in variableList:
+            print j
+            variables[str(j["name"])] = until.toType(j["type"], j["value"]).toreturnType()
+
         batchrun_list = []
         info = ""
         for case in id:
@@ -366,13 +378,12 @@ def caseBatchRun(request):
             if (APIID[0] != ''):
                 for x in APIID:
                     list.append(x)
-                    # [{"sname":"登录","list":[1,5,10],"cookices":{}}]
+                    # [{"sname":"登录","list":[1,5,10],"cookices":{},"variables": {}, "publicHeader", {}}]
                 if (cookieID == '不使用Cookie'):
                     batchrunJson = {
                         "sname": str(caseName),
                         "list": list,
                     }
-                    batchrun_list.append(batchrunJson)
                 else:
                     cookie = userCookies.objects.filter(id=cookieID).values("cookies")[0]['cookies']
                     cookices = json.loads(cookie)
@@ -381,7 +392,9 @@ def caseBatchRun(request):
                         "list": list,
                         "cookices": cookices,
                     }
-                    batchrun_list.append(batchrunJson)
+                batchrunJson["variables"] = variables
+                batchrunJson["publicHeader"] = publicHeader
+                batchrun_list.append(batchrunJson)
         batchResult = batchstart.start_main(batchrun_list, environment, reportflag, exeuser)
         if (reportflag == 'Y'):
             report_localName = batchResult["reportPath"]

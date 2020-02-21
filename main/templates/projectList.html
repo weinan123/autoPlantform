@@ -393,7 +393,124 @@
                     <button class="viewButton" @click="selectAll()">全选</button>
                     <button class="viewButton" @click="selectNone()">全不选</button>
                     <button class="viewButton" @click="refresh()">刷新</button>
+                    <button data-toggle="modal" data-target="#publicHeaders" style="background: #deeaf2;
+                    font-size: 14px;color: #FFFFFF;letter-spacing: 0;background-image: -webkit-linear-gradient(top, #2372A8 0%, #2372A8 0%);
+                    border-style: none;height: 36px;width: 120px;border-radius: 3px;">添加公共头</button>
+                    <div class="modal fade" id="publicHeaders" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close"
+                                            data-dismiss="modal"
+                                            aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <label class="modal-title"
+                                           id="myModalLabel">公共头部信息</label>
+                                </div>
+                                <div class="modal-body" style="height: 400px">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>option</th>
+                                                <th>名称</th>
+                                                <th>值</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="pubHeaders,index in pubHeadersVal">
+                                                <td>
+                                                    <input class="custom-checkbox" type="checkbox" v-bind="index" v-model="optionList">
+                                                </td>
+                                                <td><input type="text" class="form-control" id="headername" v-model="pubHeaders.name">{{ pubHeaders.name }}</td>
+                                                <td><input type="text" class="form-control" id="headervalue" v-model="pubHeaders.value">{{ pubHeaders.value }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
 
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="viewButton"
+                                            @click="addRow(1)">
+                                        添加
+                                    </button>
+                                    <button type="button" class="viewButton"
+                                            data-dismiss="modal">
+                                        删除
+                                    </button>
+
+                                    <button type="button" class="viewButton"
+                                            data-dismiss="modal">
+                                        关闭
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button data-toggle="modal" data-target="#publicVariables" style="background: #deeaf2;
+                    font-size: 14px;color: #FFFFFF;letter-spacing: 0;background-image: -webkit-linear-gradient(top, #2372A8 0%, #2372A8 0%);
+                    border-style: none;height: 36px;width: 120px;border-radius: 3px;">添加公共变量</button>
+                    <div class="modal fade" id="publicVariables" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close"
+                                            data-dismiss="modal"
+                                            aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <label class="modal-title"
+                                           id="myModalLabel">公共变量</label>
+                                </div>
+                                <div class="modal-body" style="height: 400px">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>option</th>
+                                                <th>变量名</th>
+                                                <th>类型</th>
+                                                <th>值</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="pubvars,index in pubvariableVal">
+                                                <td>
+                                                    <input class="custom-checkbox" type="checkbox" v-bind:value="index" v-model="optionList">
+                                                </td>
+                                                <td><input type="text" class="form-control" id="varname" v-model="pubvars.name">{{ pubvars.name }}</td>
+                                                <td>
+                                                <select class="form-control" name="selectType" v-model="pubvars.type">
+                                                    <option value="String" selected>String</option>
+                                                    <option value="boolean" >boolean</option>
+                                                    <option value="array" >array</option>
+                                                    <option value="number" >number</option>
+                                                    <option value="object" >object</option>
+                                                </select>
+                                                </td>
+                                                <td><input type="text" class="form-control" id="varvalue" v-model="pubvars.value">{{ pubvars.value }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="viewButton"
+                                            @click="addRow(2)">
+                                        添加
+                                    </button>
+                                    <button type="button" class="viewButton"
+                                            data-dismiss="modal">
+                                        删除
+                                    </button>
+
+                                    <button type="button" class="viewButton"
+                                            data-dismiss="modal">
+                                        关闭
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {#                判断批量删除的复选框是否被选中，如果被选中，则显示批量删除的按钮#}
                     {#                checkedDelete为数组，记录着选中的项目的ID#}
@@ -1422,6 +1539,9 @@
                     environment: 'QA',
                     runResultName: '',
                     modifyApi: [],
+                    pubvariableVal: [],
+                    pubHeadersVal: [],
+                    optionList: [],
                 }
                     ;
             },
@@ -1783,6 +1903,8 @@
                                 environment: this.environment,
                                 runResultName: this.runResultName,
                                 reportflag: reportflag,
+                                pubHeader: this.pubHeadersVal,
+                                pubvariable: this.pubvariableVal,
                             }
                         }).then(resp => {
                                 if (resp.data.code === 0) {
@@ -1921,6 +2043,28 @@
                     this.disflag_right = "disabled";
                     this.refresh();
                 },
+                addRow(flag){
+                    if(flag === 1){
+                        var newVals={
+                            name:"",
+                            value:""
+                        };
+                        this.pubHeadersVal.push(newVals);
+                    }else{
+                        var newVals1={
+                            name:"",
+                            type:"String",
+                            value:""
+                        };
+                        this.pubvariableVal.push(newVals1);
+                    }
+                },
+                deleteRow(index) {
+                    var lengthItem = this.assertVals.length;
+                    if (lengthItem > 1) {
+                        this.assertVals.splice(index, 1);
+                    }
+                },
 
 
             },
@@ -1962,8 +2106,7 @@
                             password: "",
                             cookies: "",
                             iseffect: ""
-                        },]
-
+                        },],
                 };
 
             },
