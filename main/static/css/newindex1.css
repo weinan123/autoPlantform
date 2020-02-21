@@ -1,8 +1,8 @@
 .navleft{
-    width: 10%;
-    height: 100%;
+    width: 220px;
+    height: 150%;
     background: #05314E;
-    position: fixed;
+
     float: left
 }
 .indexleft{

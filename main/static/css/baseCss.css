@@ -3,15 +3,15 @@
 .content{
     float: left;
     background-color:#F7F7F7 ;
-    width: 85%;
+    width: 90%;
     height: 100%;
 }
 /*顶栏样式*/
 .pageheader{
     height: 44px;
-    width: 100% ;
+    width: 112% ;
     background: #FFFFFF;
-    margin-top: 84px;
+    margin-top: 44px;
     text-align: center;
 }
 /*标题样式*/
