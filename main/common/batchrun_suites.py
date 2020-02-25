@@ -136,7 +136,9 @@ def get_testcontent(api_id, environment):
     if len(send_body) != 0:
         send_body_dict = send_body
     # assertinfo = query.assertinfo
-    assert_list = json.loads(query.assertinfo)
+    assert_list = []
+    if str(query.assertinfo) != "" and query.assertinfo is not None:
+        assert_list = json.loads(query.assertinfo)
     apiname = str(query.apiName).decode("utf-8")
     extract_info = []
     dependData_str = query.depend_casedata
