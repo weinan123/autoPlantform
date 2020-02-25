@@ -6,10 +6,12 @@
 }
 .pageheader{
     height: 44px;
-    width: 100% ;
+    width: 120% ;
     background: #FFFFFF;
-    margin-top: 84px;
+    margin-top: 44px;
     text-align: center;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 .projectCss{
     margin-left: 31px;
