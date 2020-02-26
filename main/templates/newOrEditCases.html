@@ -111,9 +111,10 @@
                 </span>
             </div>
             <div style="text-align: center;margin-top: 25px;margin-bottom: 10px;">
-                <button class="btn btn-primary" v-if="titleflag" style="background: rgba(35, 114, 168, 0.15); border: 1px solid rgba(35, 114, 168, 0.15); color: rgb(35, 114, 168);">
-                     <a v-bind:href="['/apiCases/']">返回</a>
-                </button>
+
+                 <a v-bind:href="['/apiCases/']">
+                     <button class="btn btn-primary" v-if="titleflag" style="background: rgba(35, 114, 168, 0.15); border: 1px solid rgba(35, 114, 168, 0.15); color: rgb(35, 114, 168);">返回</button>
+                 </a>
                 <input type="submit" value="提交" class="btn btn-primary" @click="saveinfos()"
                        :disabled="!viewapiInfos.name || !viewapiInfos.host || !viewapiInfos.url || !assertVals[0].item_value">
             </div>
