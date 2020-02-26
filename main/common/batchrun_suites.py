@@ -4,7 +4,7 @@ from httprunner import HttpRunner
 from main.models import apiInfoTable, projectList, hostTags, moduleList
 import batchUntils, shutil
 from main.untils import until
-from celery import shared_task
+# from celery import shared_task
 
 
 

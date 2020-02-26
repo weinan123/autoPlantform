@@ -382,6 +382,10 @@
                         }else{
                             this.disflag_left = "";
                         }
+                        let totalNums = this.totalCount / this.pageCount;
+                        if(this.pageNum >= totalNums){
+                            this.disflag_right = "disabled";
+                        }
                         spinner1.spin();
                         this.selectCheck();
                     }).catch(err=> {

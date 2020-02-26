@@ -363,7 +363,10 @@ def getapiInfos(request):
                 json_dict["body"] = []
             json_dict["url"] = query.url
             if str(query.assertinfo) != "" and str(query.assertinfo) is not None:
-                json_dict["assert"] = json.loads(query.assertinfo)
+                try:
+                    json_dict["assert"] = json.loads(query.assertinfo)
+                except Exception as e:
+                    json_dict["assert"] = [{"item": "status_code", "item_value": 200}]
             else:
                 json_dict["assert"] = [{"item": "status_code", "item_value": 200}]
             json_dict["listid"] = query.owningListID
